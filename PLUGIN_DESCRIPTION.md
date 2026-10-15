@@ -73,14 +73,14 @@ Written in the open `SKILL.md` format, so they work in Claude Code, Cursor, Code
 **Any supported agent:**
 
 ```bash
-npx skills add froala/froala-claude
+npx skills add froala/froala-skills
 ```
 
 **Claude Code plugin marketplace:**
 
 ```
-/plugin marketplace add froala/froala-claude
-/plugin install froala@froala-claude
+/plugin marketplace add froala/froala-skills
+/plugin install froala@froala-skills
 ```
 
 See the README for manual installation and local development setup.

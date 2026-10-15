@@ -5,8 +5,8 @@
   "author": {
     "name": "Froala"
   },
-  "homepage": "https://github.com/froala/froala-claude",
-  "repository": "https://github.com/froala/froala-claude",
+  "homepage": "https://github.com/froala/froala-skills",
+  "repository": "https://github.com/froala/froala-skills",
   "license": "MIT",
   "keywords": ["froala", "wysiwyg", "editor", "rich-text", "filestack"]
 }
