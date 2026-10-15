@@ -11,7 +11,7 @@ The skills use the open `SKILL.md` format, so they work in Claude Code, Cursor, 
 ### Any supported agent (skills.sh)
 
 ```bash
-npx skills add froala/froala-claude
+npx skills add froala/froala-skills
 ```
 
 Installs all seven skills into `.agents/skills/` for any `SKILL.md`-compatible agent, and symlinks them for Claude Code. Add `-g` to install globally, or `-s <skill-name>` to pick individual skills.
@@ -19,8 +19,8 @@ Installs all seven skills into `.agents/skills/` for any `SKILL.md`-compatible a
 ### Claude Code plugin marketplace
 
 ```
-/plugin marketplace add froala/froala-claude
-/plugin install froala@froala-claude
+/plugin marketplace add froala/froala-skills
+/plugin install froala@froala-skills
 ```
 
 The skills then load as `froala:froala-initialization-and-sdks`, `froala:froala-methods-and-events`, and so on.
@@ -34,8 +34,8 @@ Copy any `skills/<name>/` directory into your agent's skills directory — for e
 From a clone of this repository:
 
 ```
-/plugin marketplace add /path/to/froala-claude
-/plugin install froala@froala-claude
+/plugin marketplace add /path/to/froala-skills
+/plugin install froala@froala-skills
 ```
 
 Validate manifest changes before pushing:
@@ -200,7 +200,7 @@ Froala has a rich but sprawling API. Developers repeatedly hit the same problems
 ## Project Structure
 
 ```
-froala-claude/
+froala-skills/
 ├── .claude-plugin/
 │   ├── plugin.json         # Plugin metadata
 │   └── marketplace.json    # Marketplace entry (local + remote install)
