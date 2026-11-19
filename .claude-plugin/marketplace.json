@@ -1,14 +1,14 @@
 {
   "$schema": "https://code.claude.com/docs/schema/marketplace.schema.json",
   "name": "froala-skills",
-  "description": "Claude Code plugins for Froala WYSIWYG editor integration and migration",
+  "description": "Claude Code plugins for Froala WYSIWYG editor integration, migration and upgrades",
   "owner": {
     "name": "Froala"
   },
   "plugins": [
     {
       "name": "froala",
-      "description": "Agent Skills for Froala WYSIWYG Editor: setup for every major framework, events and API, custom plugins, AI Assist, Word/Markdown/Track Changes/collaboration, Filestack uploads, error diagnosis, and migration from other rich-text editors.",
+      "description": "Agent Skills for Froala WYSIWYG Editor: setup for every major framework, events and API, custom plugins, AI Assist, Word/Markdown/Track Changes/collaboration, Filestack uploads, error diagnosis, migration from other rich-text editors, and upgrades between Froala versions.",
       "version": "1.1.0",
       "category": "development",
       "source": ".",

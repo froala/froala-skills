@@ -26,6 +26,7 @@ Written in the open `SKILL.md` format, so they work in Claude Code, Cursor, Code
 | `froala-document-features` | Word import/export, Markdown, Track Changes, real-time collaboration | Dependencies and version gates; Markdown mode rules; collaboration roles; verification steps |
 | `froala-error-diagnosis` | Hitting Froala errors, broken toolbars, or features that silently do nothing | Symptom-indexed diagnosis: missing buttons, unstyled editors, SSR errors, uploads, licensing, Word/PDF export, TypeScript |
 | `froala-migrate` | Migrating, switching or comparing from another rich-text editor | Detection, feature mapping to Froala, comparison in the conversation or a migration plan, side-by-side build, content conversion on copies |
+| `froala-upgrade` | Upgrading Froala from v2/v3/v4 to v5, or to a newer 5.x release | Version detection, breaking changes for each major version, version-gated features, upgrading the core and wrapper together, saved-content round-trip check |
 
 ---
 
