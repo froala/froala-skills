@@ -1,0 +1,50 @@
+{
+  "external": [
+    {
+      "name": "onChunk",
+      "reason": "Parameter name used in the aiAssistRequest examples, not a Froala identifier"
+    },
+    {
+      "name": "myPlugin",
+      "reason": "Example name of a custom plugin in the custom-plugins skill"
+    },
+    {
+      "name": "myBtn",
+      "reason": "Example name of a custom command"
+    },
+    {
+      "name": "importFromWordMammoth",
+      "reason": "Verified in import_from_word.min.js DEFAULTS; listed in case the token scan misses minified option names"
+    },
+    {
+      "name": "allowedCommonJsDependencies",
+      "reason": "Angular CLI build option in angular.json, not a Froala identifier"
+    },
+    {
+      "name": "maximumWarning",
+      "reason": "Angular CLI bundle-budget setting in angular.json, not a Froala identifier"
+    },
+    {
+      "name": "attachRoutes",
+      "reason": "wysiwyg-editor-node-sdk 5.6.0 API (CollabPersistence/VersionControl/AsyncSave.attachRoutes in lib/*.js), named in the collaboration docs of froala-document-features"
+    },
+    {
+      "name": "authMiddleware",
+      "reason": "Option of the wysiwyg-editor-node-sdk 5.6.0 attachRoutes functions (lib/collab_persistence.js, version_control.js, async_save.js), not a froala-editor identifier"
+    }
+  ],
+  "intentionallyInvalid": [
+    {
+      "name": "licenseKey",
+      "reason": "Skills warn that this is NOT a Froala option (the option is key)"
+    },
+    {
+      "name": "editor.text.get",
+      "reason": "Skills warn that this API does not exist"
+    },
+    {
+      "name": "text.get",
+      "reason": "Skills warn that this API does not exist"
+    }
+  ]
+}

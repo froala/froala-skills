@@ -32,6 +32,14 @@
       "skills": [
         "froala-error-diagnosis"
       ]
+    },
+    {
+      "title": "migration and upgrades",
+      "description": "Move from TinyMCE, CKEditor, Quill, Tiptap and other editors to Froala, or upgrade an existing Froala integration to v5.",
+      "skills": [
+        "froala-migrate",
+        "froala-upgrade"
+      ]
     }
   ]
 }
