@@ -9,7 +9,7 @@ Record the editor, its version, the framework wrapper, and the **stored content 
 | TinyMCE | `tinymce`, `@tinymce/tinymce-react`, `@tinymce/tinymce-vue`, `@tinymce/tinymce-angular` | `tinymce.init({ selector, plugins, toolbar })`, `<Editor apiKey=… init={…}>`, CDN script from the Tiny Cloud | HTML |
 | CKEditor 5 | `ckeditor5`, `ckeditor5-premium-features`, legacy `@ckeditor/ckeditor5-build-*`, `@ckeditor/ckeditor5-react` / `-vue` / `-angular` | `ClassicEditor.create(...)` (also `DecoupledEditor`, `InlineEditor`, `BalloonEditor`), `<CKEditor editor={ClassicEditor} config={…}>` | HTML (from `getData()`) |
 | CKEditor 4 | `ckeditor4`, `ckeditor4-react`, `ckeditor4-vue`, CDN `ckeditor.js` | `CKEDITOR.replace('id', { toolbar, extraPlugins })` | HTML |
-| Quill | `quill`, `react-quill`, `react-quill-new`, `ngx-quill`, `@vueup/vue-quill` | `new Quill('#el', { modules: { toolbar }, formats })` | Delta JSON **or** HTML — check what the app saves |
+| Quill | `quill`, `react-quill`, `react-quill-new`, `ngx-quill`, `@vueup/vue-quill` | `new Quill('#el', { modules: { toolbar }, formats })` | Delta JSON **or** HTML — check what the app saves, and whether HTML came from `getSemanticHTML()` or `root.innerHTML` (see `content-conversion.md`) |
 | Tiptap | `@tiptap/core`, `@tiptap/react`, `@tiptap/vue-3`, `@tiptap/starter-kit`, `@tiptap/extension-*` | `new Editor({ extensions })`, `useEditor({ extensions })` | JSON (`getJSON()`) or HTML (`getHTML()`) |
 | ProseMirror | `prosemirror-view`, `prosemirror-state`, `prosemirror-model` | `new EditorView(...)` with a custom schema | JSON (schema-specific) |
 | Summernote | `summernote` (jQuery) | `$('#el').summernote({ toolbar })` | HTML |
