@@ -30,7 +30,8 @@ Froala ships a native `filestack` plugin. This is the simplest and most supporte
 Include all four scripts/stylesheets before Froala initializes:
 
 ```html
-<!-- Filestack JS SDK (must be 3.x.x for the official plugin) -->
+<!-- Filestack JS SDK: Froala's plugin docs specify the 3.x.x line -->
+<!-- (npm filestack-js is now 4.x, but Froala does not document 4.x for this plugin) -->
 <script src="https://static.filestackapi.com/filestack-js/3.x.x/filestack.min.js"></script>
 <script src="https://static.filestackapi.com/filestack-drag-and-drop-js/1.1.1/filestack-drag-and-drop.min.js"></script>
 <script src="https://static.filestackapi.com/transforms-ui/2.x.x/transforms.umd.min.js"></script>
@@ -38,11 +39,13 @@ Include all four scripts/stylesheets before Froala initializes:
 
 <!-- Froala Filestack plugin: already in froala_editor.pkgd.min.js.
      Only load these if you use the core build (froala_editor.min.js). -->
-<script src="https://cdn.jsdelivr.net/npm/froala-editor@5.5.0/js/plugins/filestack.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@5.5.0/css/plugins/filestack.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/froala-editor@5.6.0/js/plugins/filestack.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@5.6.0/css/plugins/filestack.min.css" />
 ```
 
-Pin the version in every CDN URL — unversioned or `@latest` URLs can serve cached older files.
+Pin the Froala version in every CDN URL — unversioned or `@latest` URLs can serve cached older files.
+
+**React, Vue, Angular and other bundler apps still need these `<script>` tags** (e.g. in `index.html`). The plugin calls the globals `filestack`, `filestackDnD` and `FilestackTransform`; importing `filestack-js` from npm in a module does not create them.
 
 ### Configuration
 
@@ -81,7 +84,9 @@ new FroalaEditor('#editor', {
 |--------|------|---------|-------------|
 | `filestackOptions.filestackAPI` | String | `""` | Your Filestack API key |
 | `filestackOptions.uploadToFilestackOnly` | Boolean | `false` | When `true`, disables Froala's native uploader — all uploads go through Filestack |
-| `filestackOptions.pickerOptions` | Object | `{}` | Passed directly to the Filestack File Picker |
+| `filestackOptions.pickerOptions` | Object | `{}` | Passed to the Filestack File Picker (e.g. `maxFiles`, `accept`, `fromSources`, `transformationsUI`) |
+
+The plugin overwrites the picker callbacks `onOpen`, `onUploadDone`, `onFileUploadFailed`, `onClose` and `onCancel` in `pickerOptions` with its own. Use the `filestack.*` events below instead.
 
 ### Plugin Events
 
@@ -107,7 +112,7 @@ Use this when you need custom upload logic not covered by the official plugin �
   const fsClient = filestack.init('YOUR_FILESTACK_API_KEY');
 
   const editor = new FroalaEditor('#editor', {
-    imageUploadURL: null,  // Disable Froala's default upload endpoint
+    imageUploadURL: null,  // Already the default (no server upload); `return false` below is what cancels Froala's handling
     fileUploadURL: null,
 
     events: {
@@ -178,9 +183,9 @@ fsClient.upload(file).then((result) => {
 |---------|-------|-----|
 | Plugin does nothing | Using the core build without `js/plugins/filestack.min.js` | Use `froala_editor.pkgd.min.js`, or load the plugin JS and CSS |
 | Every other toolbar button vanished | `pluginsEnabled: ['filestack']` set — it is an allowlist | Remove `pluginsEnabled` |
-| Plugin broken / no picker UI | Wrong Filestack JS version | Official plugin requires `3.x.x`, not `4.x.x` |
+| Plugin broken / no picker UI | Filestack scripts missing or wrong version | Load the `filestack-js/3.x.x` script tag from Froala's plugin docs (an npm import does not create the `filestack` global) |
 | No transforms/drag-drop UI | Missing CDN dependencies | Include all four scripts/stylesheets listed above |
-| Image appears then disappears | Forgot `return false` in `image.beforeUpload` | Always `return false` to cancel Froala's upload attempt |
+| Image inserted twice (a local `blob:` copy plus the Filestack one) | Forgot `return false` in `image.beforeUpload` — with no `imageUploadURL` Froala inserts the file itself | Always `return false` to cancel Froala's own handling |
 | `editor.image.get()` returns null | No image selected | Pass `null` as 4th arg to insert at cursor |
 | `editor` is undefined in callback | Arrow function lost `this` context | Use `function()` not `() =>` for Froala event handlers |
 | 403 on upload | Invalid API key or expired security policy | Verify key in Filestack Dashboard; regenerate policy if using security |

@@ -3,7 +3,7 @@ name: froala-initialization-and-sdks
 description: >
   Use when the user is setting up a Froala editor instance. Activates on:
   import tokens (froala-editor, react-froala-wysiwyg, vue-froala-wysiwyg, angular-froala-wysiwyg, svelte-froala-wysiwyg),
-  config tokens (toolbarButtons, heightMin, heightMax, theme, key, FroalaEditor),
+  config tokens (toolbarButtons, heightMin, heightMax, theme, key, attribution, FroalaEditor),
   usage tokens (new FroalaEditor(, FroalaEditorComponent, froalaEditor, <froala>),
   Next.js tokens (next/dynamic, ssr: false, Element is not defined, use client),
   bundle tokens (froala_editor.pkgd.min.js, plugins.pkgd.min.js, froala_style.min.css),
@@ -18,7 +18,7 @@ license: MIT
 
 A complete WYSIWYG HTML editor with a ready-made toolbar UI — not a toolkit for building your own editor UI. Outputs HTML via `editor.html.get()`.
 
-- 50 plugins, 18 framework integrations, 6 server SDKs
+- 50+ plugins, 18 framework integrations, 6 server SDKs
 - AI Assist (bring your own provider), Word import/export, Markdown, real-time collaboration, Track Changes
 - Commercial license; every plan includes unlimited users, developers and editor loads
 - Headless mode requires 5.5.0+ and has limited feature support — for a fully custom editor UI, evaluate it carefully first
@@ -31,17 +31,24 @@ A complete WYSIWYG HTML editor with a ready-made toolbar UI — not a toolkit fo
 
 ```bash
 npm install froala-editor              # core
-npm install react-froala-wysiwyg       # React (supports React 15-19)
-npm install vue-froala-wysiwyg         # Vue
+npm install react-froala-wysiwyg       # React (peer range React 0.14-19)
+npm install vue-froala-wysiwyg         # Vue 3.2+
 npm install angular-froala-wysiwyg     # Angular 19+
+npm install svelte-froala-wysiwyg      # Svelte (npm peer dep: svelte ^5)
+```
+
+Each wrapper pins an **exact** `froala-editor` version (5.6.0 for wrapper 5.6.0). If you also install `froala-editor` directly (needed for its CSS/plugin imports under pnpm or Yarn PnP), install that same version — with two copies, plugins and custom buttons register on one copy while the wrapper creates the editor from the other, and silently don't show up:
+
+```bash
+npm install --save-exact react-froala-wysiwyg froala-editor@$(npm view react-froala-wysiwyg dependencies.froala-editor)
 ```
 
 ### CDN — always pin the version
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@5.5.0/css/froala_editor.pkgd.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@5.5.0/css/froala_style.min.css">
-<script src="https://cdn.jsdelivr.net/npm/froala-editor@5.5.0/js/froala_editor.pkgd.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@5.6.0/css/froala_editor.pkgd.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@5.6.0/css/froala_style.min.css">
+<script src="https://cdn.jsdelivr.net/npm/froala-editor@5.6.0/js/froala_editor.pkgd.min.js"></script>
 ```
 
 Unversioned jsDelivr URLs can serve cached older files, and a CSS/JS version mismatch breaks the editor. Pin the same version in every URL.
@@ -166,7 +173,10 @@ import App from './App.vue';
 import 'froala-editor/js/plugins.pkgd.min.js';
 import 'froala-editor/css/froala_editor.pkgd.min.css';
 import 'froala-editor/css/froala_style.min.css';
-import VueFroala from 'vue-froala-wysiwyg';
+// The package's ES entry is CommonJS, so a plain default import can arrive wrapped
+// (Vite 8 / "type": "module" gives a blank page). This form works either way.
+import * as VueFroalaModule from 'vue-froala-wysiwyg';
+const VueFroala = VueFroalaModule.default?.default ?? VueFroalaModule.default;
 
 createApp(App).use(VueFroala).mount('#app');
 ```
@@ -188,24 +198,29 @@ const config = {
 </script>
 ```
 
-The component is registered as **`<froala>`**, not `<froala-editor>`. Use `v-model:value` in Vue 3 (`v-model` in Vue 2).
+The component is registered as **`<froala>`**, not `<froala-editor>`. Use `v-model:value`, not plain `v-model` — the editor doesn't read or update `modelValue`. The current wrapper is Vue 3 only (3.2+). `config` is read once at creation; to apply new options, re-create the component (e.g. change its Vue `:key`).
 
 ---
 
 ## Angular
 
-The current `angular-froala-wysiwyg` targets **Angular 19+**. Its components are NgModule-based, not standalone.
+The current `angular-froala-wysiwyg` targets **Angular 19+**. The directives ship in two NgModules, `FroalaEditorModule` and `FroalaViewModule`. In a standalone component (the default for new Angular apps) add them to the component's `imports`:
 
 ```typescript
-// app.module.ts
+// app.ts (app.component.ts before Angular 20)
+import { Component } from '@angular/core';
 import { FroalaEditorModule, FroalaViewModule } from 'angular-froala-wysiwyg';
 import 'froala-editor/js/plugins.pkgd.min.js';
 
-@NgModule({
-  imports: [FroalaEditorModule.forRoot(), FroalaViewModule.forRoot()],
+@Component({
+  selector: 'app-root',
+  imports: [FroalaEditorModule, FroalaViewModule],
+  templateUrl: './app.html',
 })
-export class AppModule {}
+export class App { /* see MyComponent below */ }
 ```
+
+In an NgModule-bootstrapped app, use `imports: [FroalaEditorModule.forRoot(), FroalaViewModule.forRoot()]` in the module instead.
 
 ```html
 <div [froalaEditor]="options" [(froalaModel)]="content"></div>
@@ -229,7 +244,7 @@ Add the stylesheets in `angular.json`:
 ]
 ```
 
-For standalone components and SSR (`isPlatformBrowser`), see the Angular docs.
+`ng build` fails on a new project once plugins are imported: `plugins.pkgd.min.js` is about 2.5 MB, over the default 1 MB `initial` error budget. Raise the `initial` budget in `angular.json` and add `"allowedCommonJsDependencies": ["froala-editor"]` to silence the CommonJS warning. For SSR, import plugins dynamically inside `isPlatformBrowser(...)` — see the wrapper README.
 
 ---
 
@@ -270,18 +285,22 @@ const config = {
 
 ## Licensing
 
-The activation key option is **`key`** — not `licenseKey`, which is not a Froala option and is silently ignored, leaving the notice in place with no error.
+The activation key option is **`key`** — not `licenseKey`, which is not a Froala option and is silently ignored — the editor behaves as if no key were set and shows the missing-key notice.
 
 | Plan | Products / domains | Notes |
 |---|---|---|
 | Free Trial | — | 30 days, all features, self-hosted |
-| Professional | 1 product, 3 domains | Internal applications |
+| Professional | 1 product, 3 domains | Internal and mobile apps — no SaaS or OEM distribution |
 | Enterprise | Unlimited products and domains | OEM and SaaS distribution |
 | Custom | Unlimited | Custom terms |
 
 Every plan includes unlimited users, developers and editor loads.
 
-**The editor works without a key.** On `localhost` no unlicensed notice appears at all, so an integration can be built and tested locally before a key exists. On any other domain the editor shows "This is an unlicensed version of the Froala Editor." Add the key before deploying.
+**The editor works without a key**, but since 5.6.0 it shows a one-line status notice under the editor, next to "Powered by Froala" — **on `localhost` too** (before 5.6.0, a red "unlicensed" banner that localhost skipped). The text depends on the status, e.g. missing key: "The license key for Froala Editor is missing. To evaluate, use the trial key…"; it is also logged once per page as a `console.warn`. Other statuses: trial, invalid (wrong domain, or key copied incorrectly), expired.
+
+- To evaluate with every plugin enabled, use the public trial key `TRIAL-LICENSE-KEY-FOR-FROALA-NOT-FOR-PRODUCTION-USE`. It never licenses a site — do not ship it.
+- A valid key covers its domain and all subdomains. Only a plain "Powered by Froala" text remains, removable with `attribution: false`.
+- An annual (term) key keeps a clean editor for 15 days after expiry; after that the expired notice shows everywhere, including `localhost`.
 
 Never hardcode a production key in a public repo:
 
@@ -295,7 +314,7 @@ Get a key at [cart.froala.com](https://cart.froala.com/).
 
 ## Common Mistakes
 
-1. **Unversioned CDN URLs** — jsDelivr may serve a cached older file, and a CSS/JS mismatch breaks the editor. Pin `@5.5.0` everywhere.
+1. **Unversioned CDN URLs** — jsDelivr may serve a cached older file, and a CSS/JS mismatch breaks the editor. Pin `@5.6.0` everywhere.
 
 2. **Missing CSS imports** — the editor renders but looks broken. Both `froala_editor.pkgd.min.css` and `froala_style.min.css` are required, plus the theme CSS if `theme` is set.
 

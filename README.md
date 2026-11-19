@@ -58,7 +58,7 @@ Covers:
 - Installation for Vanilla JS, React, Vue 3, and Angular
 - Toolbar configuration and layout options
 - Editor lifecycle and proper destroy/cleanup patterns
-- License key setup for localhost vs. production
+- License key setup, the trial key, and the 5.6.0 license notice (shown on localhost too)
 
 **Trigger keywords:** `froala-editor`, `react-froala-wysiwyg`, `vue-froala-wysiwyg`, `angular-froala-wysiwyg`, `new FroalaEditor(`, `toolbarButtons`, `heightMin`
 
@@ -127,10 +127,10 @@ Covers:
 - `FroalaEditor is not defined` / `is not a constructor` (script load order, wrong import style)
 - Plugin method undefined (`editor.image is undefined`, `editor.link is undefined`) — plugin not imported or called before `initialized`
 - Editor does not mount / element not found (selector mismatch, DOM not ready)
-- License warning banner (missing or invalid `key` — note the option is `key`, not `licenseKey`)
-- Toolbar button renders but does nothing (plugin registered after editor init)
-- Image/file upload fails silently (missing `imageUploadURL`, wrong server response shape, CORS)
-- `html.get()` returns empty string (called before editor is ready)
+- License notice next to "Powered by Froala" (missing, trial, invalid or expired `key` — note the option is `key`, not `licenseKey`)
+- Toolbar button renders but does nothing (arrow-function `callback` losing `this`, or a `commands.before` handler returning `false`)
+- Image/file upload fails (`image.error` codes for a missing `link`, server errors or unparsable responses; CORS)
+- `html.get()` throws or returns stale content (called before the editor is initialized)
 - `this` is undefined or wrong in event handlers (arrow function context loss)
 - Quick diagnosis checklist for unknown issues
 
@@ -187,7 +187,7 @@ Covers:
 → `froala-document-features` activates → `import_from_word` with mammoth.js for client-side conversion, size and file-type limits, and the import events
 
 **"My toolbar button shows up but clicking it does nothing."**
-→ `froala-error-diagnosis` activates → Checks plugin registration order (`RegisterCommand` must run before `new FroalaEditor`), `pluginsEnabled` allowlist, and `this` context in callbacks
+→ `froala-error-diagnosis` activates → Checks for an arrow-function `callback` (Froala calls it with `this` set to the editor) and a `commands.before` handler returning `false`. A command that isn't registered, or whose plugin isn't in `pluginsEnabled`, doesn't render a button at all
 
 ---
 

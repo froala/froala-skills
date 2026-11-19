@@ -5,10 +5,12 @@ description: >
   symptom tokens (toolbar missing, button not showing, button not appearing, toolbar empty, no toolbar,
   plugin not loading, plugin not working, editor broken, editor not rendering, editor not showing),
   console error tokens (FroalaEditor is not defined, is not a constructor, html is undefined,
-  image is undefined, Cannot read property, pluginsEnabled),
+  image is undefined, Cannot read property, Cannot read properties of undefined, pluginsEnabled,
+  No link in upload response, Parsing response failed),
+  license tokens (license key is missing, license key is invalid, unlicensed banner, Powered by Froala notice),
   Next.js tokens (Element is not defined, next build fails, ssr false),
   version tokens (CDN mismatch, editor looks broken after update),
-  API tokens (editor.text is undefined, froala-editor tag not rendering, AI terms popup),
+  API tokens (editor.text is undefined, froala-editor tag not rendering, Vue blank page, AI terms popup),
   or when user asks why a toolbar button, plugin, upload, or editor feature is not working.
 version: 1.0.0
 license: MIT
@@ -94,6 +96,15 @@ toolbarButtons: {
 }
 ```
 
+**Cause 5 — Custom command not registered when the toolbar is built.**
+The toolbar skips any name that has no registered command (and any command whose plugin is not in `pluginsEnabled`). Call `FroalaEditor.RegisterCommand` (and `FroalaEditor.DefineIcon`) before `new FroalaEditor(...)`.
+
+```js
+FroalaEditor.DefineIcon('myBtn', { NAME: 'star', SVG_KEY: 'star' });
+FroalaEditor.RegisterCommand('myBtn', { title: 'My button', callback() { /* ... */ } });
+new FroalaEditor('#editor', { toolbarButtons: ['bold', 'myBtn'] });
+```
+
 ---
 
 ## Editor Renders but Looks Broken or Unstyled
@@ -111,8 +122,8 @@ import 'froala-editor/css/froala_style.min.css';       // content styling
 
 For CDN:
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@5.5.0/css/froala_editor.pkgd.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@5.5.0/css/froala_style.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@5.6.0/css/froala_editor.pkgd.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@5.6.0/css/froala_style.min.css">
 ```
 
 **If `theme` is set, its stylesheet is also required.** `dark`, `gray` and `royal` each need `froala-editor/css/themes/<name>.min.css`. Setting `theme: 'dark'` without loading `themes/dark.min.css` leaves the editor unstyled.
@@ -129,7 +140,7 @@ The script tag is in `<head>` without `defer`, or the inline script runs before 
 ```html
 <!-- WRONG — script may not be loaded when inline JS runs -->
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/froala-editor@5.5.0/js/froala_editor.pkgd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/froala-editor@5.6.0/js/froala_editor.pkgd.min.js"></script>
 </head>
 <body>
   <script>new FroalaEditor('#editor', {});</script> <!-- may fail -->
@@ -138,7 +149,7 @@ The script tag is in `<head>` without `defer`, or the inline script runs before 
 <!-- CORRECT — place before </body> or use DOMContentLoaded -->
 <body>
   <div id="editor"></div>
-  <script src="https://cdn.jsdelivr.net/npm/froala-editor@5.5.0/js/froala_editor.pkgd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/froala-editor@5.6.0/js/froala_editor.pkgd.min.js"></script>
   <script>new FroalaEditor('#editor', {});</script>
 </body>
 ```
@@ -157,15 +168,15 @@ import FroalaEditor from 'froala-editor';
 
 ## Plugin Method Is Undefined (`editor.image is undefined`, etc.)
 
-**Symptom:** Calling `editor.image.insert(...)` or similar throws `Cannot read property of undefined`.
+**Symptom:** Calling `editor.image.insert(...)`, `editor.html.get()` or similar throws `Cannot read properties of undefined (reading '...')`.
 
 **Cause 1 — Called before `initialized`.**
-The editor instance is not safe to call until the `initialized` event fires.
+The constructor returns immediately but builds the editor asynchronously, so modules such as `editor.html` and plugins such as `editor.image` do not exist yet. Call them only after the `initialized` event fires.
 
 ```js
 // WRONG
 const editor = new FroalaEditor('#editor', {});
-editor.html.set('<p>Hello</p>'); // error — editor not ready
+editor.html.set('<p>Hello</p>'); // throws — editor.html is not created yet
 
 // CORRECT
 new FroalaEditor('#editor', {
@@ -184,6 +195,9 @@ new FroalaEditor('#editor', {
 import 'froala-editor/js/plugins/image.min.js'; // required for editor.image.*
 import 'froala-editor/js/plugins/link.min.js';  // required for editor.link.*
 ```
+
+**Cause 3 — The selector matched zero or several elements.**
+`new FroalaEditor(selector)` returns a single instance only when exactly one element matches. With no match or several matches it returns an array, so `editor.html` is undefined. Use a unique selector or pass the DOM element itself.
 
 ---
 
@@ -215,13 +229,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 ---
 
-## License Warning Banner Appears
+## License Notice or Banner Appears
 
-**Symptom:** Yellow banner reading "You are using an unlicensed version of Froala Editor."
+**Symptom (v5.6.0+):** A one-line notice under the editor, next to "Powered by Froala", such as "The license key for Froala Editor is missing…" or "…is invalid…" (amber dot), or "…expired…" (red dot). The same message is printed once per page in the console. Versions before 5.6.0 showed a red "unlicensed" banner instead.
 
-**Cause — `key` not set or invalid.**
-The activation option is `key`. Using `licenseKey` is a common mistake: it is not a Froala option, so it is silently ignored and the banner stays with no error shown.
-The notice does **not** appear on `localhost`, so an integration can be built and tested locally without a key. It appears on every other domain. Add the key before deploying.
+**Cause — `key` not set, wrong for this domain, or expired.**
+The activation option is `key`. Using `licenseKey` is a common mistake: it is not a Froala option, so it is ignored and the notice stays.
+Since v5.6.0, `localhost` shows the same notice as a live site when there is no key or the trial key is used. For evaluation, use the public trial key `TRIAL-LICENSE-KEY-FOR-FROALA-NOT-FOR-PRODUCTION-USE` (never in production). A valid key covers its domain and subdomains; check it was generated for the domain you deploy to.
 
 ```js
 new FroalaEditor('#editor', {
@@ -229,7 +243,7 @@ new FroalaEditor('#editor', {
 });
 ```
 
-Get a key at [cart.froala.com](https://cart.froala.com/). A missing key does not break functionality — it only shows the banner.
+With a valid key only a plain "Powered by Froala" text remains, which `attribution: false` hides. Get a key at [cart.froala.com](https://cart.froala.com/). See the [activation docs](https://froala.com/wysiwyg-editor/docs/activation/).
 
 ---
 
@@ -237,30 +251,30 @@ Get a key at [cart.froala.com](https://cart.froala.com/). A missing key does not
 
 **Symptom:** Button appears in the toolbar, is clickable, but has no effect.
 
-**Cause 1 — Custom plugin registered after editor init.**
-`FroalaEditor.RegisterCommand` and `FroalaEditor.PLUGINS` must run before `new FroalaEditor(...)`.
+**Cause 1 — Arrow function as the command `callback`.**
+Froala calls `callback` with `this` set to the editor. An arrow function ignores that, so `this.html`, `this.selection`, etc. are wrong.
 
 ```js
-// WRONG — registration too late
-const editor = new FroalaEditor('#editor', {});
-FroalaEditor.RegisterCommand('myBtn', { callback() { ... } }); // ignored
+// WRONG
+FroalaEditor.RegisterCommand('myBtn', { callback: () => { this.html.insert('Hi'); } });
 
 // CORRECT
-FroalaEditor.RegisterCommand('myBtn', { callback() { ... } }); // register first
-const editor = new FroalaEditor('#editor', { toolbarButtons: ['myBtn'] });
+FroalaEditor.RegisterCommand('myBtn', { callback() { this.html.insert('Hi'); } });
 ```
 
-**Cause 2 — `pluginsEnabled` blocks the plugin the button depends on.**
-See the toolbar section above.
+**Cause 2 — A `commands.before` handler returns `false`.**
+Returning `false` from `commands.before` cancels the command. Return `false` only for the specific `cmd` you mean to block.
+
+(A command that is not registered, or whose plugin is excluded by `pluginsEnabled`, is not rendered at all — see the toolbar section above.)
 
 ---
 
 ## Image / File Upload Does Nothing or Fails Silently
 
-**Symptom:** Selecting a file does nothing, or upload seems to start but never completes.
+**Symptom:** Images end up as base64 in the HTML, the upload never completes, or the image popup shows "No link in upload response." / "Parsing response failed." / "Error during file upload."
 
 **Cause 1 — `imageUploadURL` not set.**
-Without an upload endpoint, Froala encodes images as base64 inline. For server upload, set the URL:
+`imageUploadURL` defaults to `null`, so Froala inserts images as base64 inline. For server upload, set the URL:
 
 ```js
 new FroalaEditor('#editor', {
@@ -276,7 +290,15 @@ Froala expects a specific JSON shape:
 { "link": "https://your-cdn.com/uploaded-image.jpg" }
 ```
 
-Any other shape causes a silent failure. Check the Network tab for the actual response.
+Any other shape fails the upload and fires `image.error` (code 2 = no link in response, 3 = server error, 4 = response could not be parsed). Log it, and check the Network tab for the actual response:
+
+```js
+events: {
+  'image.error': function (error, response) {
+    console.error(error.code, error.message, response);
+  },
+}
+```
 
 **Cause 3 — CORS.**
 The upload endpoint must allow the origin making the request. Check browser console for CORS errors.
@@ -286,16 +308,16 @@ If you intercept uploads and `return false` always (not just for custom upload p
 
 ---
 
-## `html.get()` Returns Empty String
+## Reading Content: `html.get()` Fails or Is Stale
 
-**Symptom:** `editor.html.get()` returns `""` even though the editor has content.
+**Symptom:** `editor.html.get()` throws right after creating the editor, or your copy of the content is out of date.
 
-**Cause — Called before the editor initializes or outside the editor's context.**
+**Cause — Read before the editor initializes, or read once instead of on change.**
 
 ```js
 // WRONG — race condition
 const editor = new FroalaEditor('#editor', {});
-console.log(editor.html.get()); // "" — not ready yet
+console.log(editor.html.get()); // throws — editor.html not created yet
 
 // CORRECT
 new FroalaEditor('#editor', {
@@ -347,10 +369,15 @@ events: {
 **Cause — Froala imported during server rendering.** Froala needs the browser DOM. Adding `'use client'` is **not** enough, because client components are still pre-rendered on the server.
 
 ```jsx
-// CORRECT — skip server rendering entirely
+// CORRECT — Editor.jsx (App Router: this file must itself be 'use client',
+// because ssr: false is not allowed in Server Components)
+'use client';
 import dynamic from 'next/dynamic';
-const Editor = dynamic(() => import('../components/Editor'), { ssr: false });
+const FroalaClient = dynamic(() => import('./FroalaClient'), { ssr: false });
+export default function Editor() { return <FroalaClient />; }
 ```
+
+`FroalaClient.jsx` holds the Froala imports and `<FroalaEditorComponent>`. Pages import `Editor`, never `FroalaClient` directly, or the server-rendering failure comes back.
 
 ---
 
@@ -358,12 +385,12 @@ const Editor = dynamic(() => import('../components/Editor'), { ssr: false });
 
 **Symptom:** The editor worked, then broke with no code change.
 
-**Cause — CSS and JS versions differ.** Unversioned jsDelivr URLs can serve cached older files independently, so the CSS and JS drift apart.
+**Cause — unpinned URLs, so files come from different versions.** An unversioned jsDelivr URL (`froala-editor/...` or `@latest`) follows the newest release, and each file is cached separately, so after a release the core JS, CSS and plugin files can briefly come from different versions. Core, plugins and CSS must all be the same version With npm, install `froala-editor` at the exact version your wrapper depends on (`react-froala-wysiwyg` and `vue-froala-wysiwyg` 5.6.0 pin `froala-editor` 5.6.0); otherwise npm can install a second copy, and plugins you import register on a different copy than the one the wrapper uses.
 
 ```html
 <!-- Pin the same version in every URL -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@5.5.0/css/froala_editor.pkgd.min.css">
-<script src="https://cdn.jsdelivr.net/npm/froala-editor@5.5.0/js/froala_editor.pkgd.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/froala-editor@5.6.0/css/froala_editor.pkgd.min.css">
+<script src="https://cdn.jsdelivr.net/npm/froala-editor@5.6.0/js/froala_editor.pkgd.min.js"></script>
 ```
 
 ---
@@ -380,10 +407,20 @@ const Editor = dynamic(() => import('../components/Editor'), { ssr: false });
 
 **Symptom:** Nothing appears where the editor should be; no error.
 
-**Cause — wrong tag.** `app.use(VueFroala)` registers the component as `<froala>`, not `<froala-editor>`.
+**Cause 1 — wrong tag.** `app.use(VueFroala)` registers the component as `<froala>`, not `<froala-editor>`.
 
 ```vue
 <froala :tag="'textarea'" :config="config" v-model:value="content"></froala>
+```
+
+Use `v-model:value`, not plain `v-model`: the component doesn't read or update `modelValue`.
+
+**Cause 2 — the plugin was not actually registered (Vite 8 / `"type": "module"`).** A plain `import VueFroala from 'vue-froala-wysiwyg'` can return the module namespace instead of the plugin. Dev shows `A plugin must either be a function or an object with an "install" function.`; production just renders a blank page. Import it this way:
+
+```js
+import * as VueFroalaModule from 'vue-froala-wysiwyg';
+const VueFroala = VueFroalaModule.default?.default ?? VueFroalaModule.default;
+app.use(VueFroala);
 ```
 
 ---
@@ -412,7 +449,9 @@ new FroalaEditor('#editor', {
 import 'froala-editor/js/plugins/track_changes.min.js';
 ```
 
-The same applies to `edit_in_popup`, `trim_video`, and the `third_party` plugins (`embedly`, `font_awesome`, `image_tui`, `imageFileRobot`, `spell_checker`).
+If you set `pluginsEnabled`, its plugin name is `track_changes`.
+
+The same applies to `edit_in_popup`, `trim_video` (plus `css/plugins/trim_video.min.css`), and the `js/third_party/` plugins (`embedly`, `font_awesome`, `image_tui`, `imageFileRobot`, `spell_checker`), which also need their `css/third_party/<name>.min.css`.
 
 ---
 
@@ -421,7 +460,7 @@ The same applies to `edit_in_popup`, `trim_video`, and the `third_party` plugins
 If something isn't working and you're not sure where to start:
 
 1. **Open browser DevTools → Console** — look for any JS errors
-2. **Open Network tab** — check for failed requests (uploads, license checks)
+2. **Open Network tab** — check for failed requests (uploads, plugin/CSS files returning 404)
 3. **Confirm plugin JS is imported** for every feature you're using
 4. **Confirm CSS is imported** if the editor looks wrong
 5. **Confirm `pluginsEnabled` includes** every plugin you need (or remove it entirely)

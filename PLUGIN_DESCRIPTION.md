@@ -22,7 +22,7 @@ Written in the open `SKILL.md` format, so they work in Claude Code, Cursor, Code
 | `froala-methods-and-events` | Writing event listeners, getting/setting HTML content, intercepting keyboard input, or accessing the `editor` instance | Event listener syntax; safe HTML get/set; paste cleanup config; pre-init API call fixes |
 | `froala-custom-plugins` | Registering custom plugins, creating toolbar buttons, building floating popups, or extending formatting | Custom plugin boilerplate; command and dropdown registration; state sync patterns; SVG icon registration; plugin load order |
 | `froala-filestack-integration` | Configuring image/file upload, bypassing the default uploader, or wiring Filestack into the editor | Official `filestack` plugin setup via `pluginsEnabled` and `filestackOptions` (recommended); manual `image.beforeUpload` interception with `client.upload()` and `image.insert()` for advanced cases |
-| `froala-error-diagnosis` | Hitting Froala errors, broken toolbars, or features that silently do nothing | Symptom-indexed diagnosis for missing toolbar buttons, unstyled editors, `FroalaEditor is not defined`, undefined plugin methods, silent upload failures, empty `html.get()`, and `this` context loss |
+| `froala-error-diagnosis` | Hitting Froala errors, broken toolbars, or features that silently do nothing | Symptom-indexed diagnosis for missing toolbar buttons, unstyled editors, `FroalaEditor is not defined`, undefined plugin methods, upload failures (`image.error`), `html.get()` called before init, and `this` context loss |
 
 ---
 
@@ -64,7 +64,7 @@ Written in the open `SKILL.md` format, so they work in Claude Code, Cursor, Code
 
 > **User:** "My toolbar button shows up but clicking it does nothing."
 
-`froala-error-diagnosis` activates and works through the likely causes: `RegisterCommand` running after `new FroalaEditor`, the `pluginsEnabled` allowlist, and `this` context loss in callbacks.
+`froala-error-diagnosis` activates and works through the likely causes: an arrow-function `callback` losing `this`, or a `commands.before` handler returning `false`. (A command that isn't registered, or whose plugin isn't in `pluginsEnabled`, doesn't render a button at all.)
 
 ---
 

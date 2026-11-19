@@ -4,7 +4,7 @@ description: >
   Use when the user is working with Froala editor events or API methods. Activates on:
   event tokens (events.on, events.bind, contentChanged, initialized, focus, blur, keydown, keyup),
   content tokens (html.get, html.set, editor.html, getHTML, setHTML),
-  paste tokens (pastePlain, pasteDenied, paste.afterCleanup, pastePlainText),
+  paste tokens (pastePlain, pasteDeniedTags, pasteDeniedAttrs, pasteAllowedStyleProps, paste.afterCleanup, wordPasteModal),
   or when user asks how to listen for changes, get editor content, or intercept keyboard input.
 version: 1.0.0
 license: MIT
@@ -49,7 +49,7 @@ new FroalaEditor('#editor', {
 });
 ```
 
-**Via `editor.events.on` (after initialization):**
+**Via `editor.events.on` (after initialization):** signature is `events.on(name, handler, first)`; pass `first = true` to run your handler before the ones already registered (useful to return `false` and cancel). Space-separate names to bind several events at once.
 
 ```js
 const editor = new FroalaEditor('#editor', {
@@ -95,7 +95,7 @@ const editor = new FroalaEditor('#editor', {
 
 ```js
 // Get the editor's HTML content
-const html = editor.html.get();           // includes formatting tags
+const html = editor.html.get();           // html.get(keep_markers = false, keep_classes = false)
 
 // Set the editor's HTML content
 editor.html.set('<p>New content</p>');
@@ -160,13 +160,18 @@ Control what formatting is stripped when pasting from external sources (Word, Go
 ```js
 new FroalaEditor('#editor', {
   // Strip Word formatting
-  wordPasteModal: false,         // Don't show the "paste from Word" modal
-  wordPasteKeepFormatting: false, // Strip Word formatting on paste
+  wordPasteModal: false,         // Don't show the "keep/clean Word formatting" modal (default true)
+  wordPasteKeepFormatting: false, // Used when the modal is off: false = clean Word formatting (default true)
 
   // Plain text paste
   pastePlain: false,             // true = strip all formatting on paste
 
-  // Fine-grained paste cleanup
+  // Paste-only cleanup (applies to pasted content only)
+  pasteDeniedTags: ['colgroup', 'col', 'meta', 'iframe'], // default ['colgroup', 'col', 'meta']
+  pasteDeniedAttrs: ['class', 'id', 'style'],           // default ['class', 'id']
+  pasteAllowedStyleProps: ['font-weight', 'text-decoration'], // default ['.*'] (regex list)
+
+  // Global HTML rules (apply to ALL editor content, not just paste)
   htmlAllowedTags: ['p', 'br', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li'],
   htmlAllowedAttrs: ['href', 'target'],
   htmlRemoveTags: ['script', 'style'],
@@ -188,7 +193,7 @@ new FroalaEditor('#editor', {
 
 **Problem:** Calling methods before initialization causes `Cannot read property of undefined` errors.
 
-**Fix:** Always wrap post-init API calls in the `initialized` event:
+**Fix:** Always wrap post-init API calls in the `initialized` event (or pass an init callback as the third constructor argument: `new FroalaEditor('#editor', {}, function () { this.html.set('<p>Hello</p>'); })`; note this callback overwrites any `events.initialized` in the config):
 
 ```js
 // WRONG — editor not ready yet

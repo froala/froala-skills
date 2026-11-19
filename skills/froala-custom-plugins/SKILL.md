@@ -20,17 +20,20 @@ Every custom Froala plugin follows this structure:
 import FroalaEditor from 'froala-editor';
 
 (function (FroalaEditor) {
-  // 1. Register SVG icon for the toolbar button
+  // 1. Register the icon for the toolbar button (default iconsTemplate is 'svg')
   FroalaEditor.DefineIcon('myPluginIcon', {
-    NAME: 'star',           // Font Awesome icon name (if using FA)
-    SVG_KEY: 'star',        // OR use a built-in SVG key
+    NAME: 'star',           // Used only with a Font Awesome iconsTemplate (or 'text' template)
+    SVG_KEY: 'star',        // Built-in SVG key (a key of FroalaEditor.SVG), used by the default 'svg' template
   });
 
-  // Use custom SVG:
+  // OR a custom SVG: the 'svg' template takes the path data, not a full <svg> string
   FroalaEditor.DefineIcon('myPluginIcon', {
     template: 'svg',
-    SVG: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-6 4 2 7-6-4-6 4 2-7-6-4h7z"/></svg>',
+    PATH: 'M12 2l3 7h7l-6 4 2 7-6-4-6 4 2-7-6-4h7z',
+    VIEWBOX: '0 0 24 24',   // optional, defaults to '0 0 24 24'
   });
+  // Other templates (FroalaEditor.ICON_TEMPLATES): 'font_awesome', 'font_awesome_5' (+ '5r'/'5l'/'5b', uses FA5NAME),
+  // 'text' (NAME), 'image' (SRC, ALT), 'svgMultiplePath' (PATHS = raw <path> markup), 'empty'.
 
   // 2. Register the toolbar command
   FroalaEditor.RegisterCommand('myPlugin', {
@@ -70,6 +73,8 @@ new FroalaEditor('#editor', {
   toolbarButtons: ['bold', 'italic', '|', 'myPlugin'],
 });
 ```
+
+If you set `pluginsEnabled`, include your plugin's name (e.g. `'myPlugin'`) or its `_init` will never run.
 
 ---
 
@@ -121,18 +126,26 @@ FroalaEditor.PLUGINS.myPlugin = function (editor) {
         editor.button.buildList(['myPluginClose']) +
         '</div>',
       custom_layer: '<div class="fr-layer fr-active" style="padding:16px">' +
-        '<input id="my-input" type="text" placeholder="Enter value" />' +
-        '<button onclick="applyValue()">Apply</button>' +
+        '<input class="my-input" type="text" placeholder="Enter value" />' +
+        '<button type="button" class="my-apply">Apply</button>' +
         '</div>',
     };
-    return editor.popups.create('myPlugin.popup', template);
+    const $popup = editor.popups.create('myPlugin.popup', template);
+    // Bind handlers on the popup instead of inline onclick (inline handlers run in global scope)
+    editor.events.bindClick($popup, '.my-apply', function () {
+      const value = $popup.find('.my-input').val();
+      editor.html.insert(editor.html.escapeEntities(value));
+      hidePopup();
+    });
+    return $popup;
   }
 
   function showPopup() {
     let $popup = editor.popups.get('myPlugin.popup');
     if (!$popup) $popup = initPopup();
 
-    // Position popup at current selection
+    // Position popup centered over the top edge of the editing area
+    // (to anchor it under a toolbar button instead, use that button's offset — see docs "Custom Popup")
     editor.popups.setContainer('myPlugin.popup', editor.$sc);
     const left = editor.$el.offset().left + editor.$el.outerWidth() / 2;
     const top = editor.$el.offset().top;
@@ -251,8 +264,12 @@ FroalaEditor.RegisterCommand('myPlugin', {
 ## Registering Shortcut Keys
 
 ```js
-FroalaEditor.RegisterShortcut(FroalaEditor.KEYCODE.K, 'myPlugin', null, 'K');
+// RegisterShortcut(keyCode, cmd, val, letter, shift, option)
+// Ctrl/Cmd + Shift + K -> runs the 'myPlugin' command
+FroalaEditor.RegisterShortcut(FroalaEditor.KEYCODE.K, 'myPlugin', null, 'K', true, false);
 ```
+
+Shortcuts are keyed by key + modifiers, so reusing a built-in combo overrides it (plain Ctrl+K is `insertLink`). Registering adds the command to `shortcutsEnabled` automatically; if you pass your own `shortcutsEnabled` list, include the command name.
 
 ---
 
