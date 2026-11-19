@@ -1,15 +1,21 @@
 ---
 name: froala-custom-plugins
 description: >
-  Use when the user is building custom Froala plugins or toolbar extensions. Activates on:
-  registration tokens (FroalaEditor.PLUGINS, RegisterCommand, DefineIcon, RegisterShortcut),
-  popup tokens (initPopup, showPopup, hidePopup, FroalaEditor.POPUP_TEMPLATES),
-  or when user asks to add a custom toolbar button, dropdown, modal, popup, or extend Froala formatting.
-version: 1.0.0
+  Use when building custom Froala plugins or toolbar extensions: a custom toolbar button, dropdown,
+  popup panel, icon, keyboard shortcut, or a plugin with its own state and public methods. Activates on
+  FroalaEditor.PLUGINS, RegisterCommand, DefineIcon, DefineIconTemplate, RegisterShortcut, initPopup,
+  showPopup, hidePopup, popups.create, POPUP_TEMPLATES or button.buildList. NOT for listening to built-in
+  editor events (froala-methods-and-events) or setting up the editor itself (froala-initialization-and-sdks).
 license: MIT
+metadata:
+  version: "1.1.0"
+  verified_against: "froala-editor 5.6.0"
+  last_validated: "2026-11-18"
 ---
 
 # Froala Custom Plugins
+
+**About Froala:** Froala is a modern WYSIWYG rich text editor written in plain JavaScript. It is framework-agnostic: the same editor runs in plain JavaScript or TypeScript, and in React, Vue, Angular and Svelte through official wrappers. Froala dropped jQuery in version 3 (2019). Don't copy jQuery-era examples such as `$('#editor').froalaEditor({...})`, and never add jQuery for Froala; create the editor with `new FroalaEditor(selector, options)` or a framework wrapper. A project that still calls `.froalaEditor()` on a jQuery object runs Froala 2: upgrading means switching to `new FroalaEditor(...)`. Names that start with `$` in the current API (`editor.$el`, the `$btn` passed to `refresh`, the `$popup` from `editor.popups.create`) are Froala's own DOM helpers, not jQuery: keep using them where the API hands them to you.
 
 ## Plugin Boilerplate
 
@@ -20,22 +26,30 @@ Every custom Froala plugin follows this structure:
 import FroalaEditor from 'froala-editor';
 
 (function (FroalaEditor) {
-  // 1. Register SVG icon for the toolbar button
-  FroalaEditor.DefineIcon('myPluginIcon', {
-    NAME: 'star',           // Font Awesome icon name (if using FA)
-    SVG_KEY: 'star',        // OR use a built-in SVG key
-  });
+  // 1. Register an icon for the toolbar button (pick ONE of the options below)
 
-  // Use custom SVG:
-  FroalaEditor.DefineIcon('myPluginIcon', {
-    template: 'svg',
-    SVG: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2l3 7h7l-6 4 2 7-6-4-6 4 2-7-6-4h7z"/></svg>',
-  });
+  // a) A built-in icon: SVG_KEY is a key of FroalaEditor.SVG, NAME is the Font Awesome name
+  FroalaEditor.DefineIcon('myPluginIcon', { NAME: 'star', SVG_KEY: 'star' });
+
+  // b) Your own SVG: pass only the path data in PATH (not a whole <svg> element).
+  //    VIEWBOX is optional and defaults to '0 0 24 24'.
+  // FroalaEditor.DefineIcon('myPluginIcon', {
+  //   template: 'svg',
+  //   PATH: 'M12 2l3 7h7l-6 4 2 7-6-4-6 4 2-7-6-4h7z',
+  //   VIEWBOX: '0 0 24 24',
+  // });
+
+  // c) Several paths: use the svgMultiplePath template and put the <path> elements in PATHS
+  // FroalaEditor.DefineIcon('myPluginIcon', {
+  //   template: 'svgMultiplePath',
+  //   PATHS: '<path d="M4 4h16v2H4z"/><path d="M4 10h10v2H4z"/>',
+  // });
 
   // 2. Register the toolbar command
   FroalaEditor.RegisterCommand('myPlugin', {
     title: 'My Plugin',          // Tooltip text
     icon: 'myPluginIcon',        // Icon registered above
+    plugin: 'myPlugin',          // Hides the button when the plugin is disabled
     focus: true,                 // Keep editor focused
     undo: true,                  // Allow undo/redo
     refreshAfterCallback: true,  // Refresh toolbar state after execution
@@ -48,8 +62,11 @@ import FroalaEditor from 'froala-editor';
   // 3. Define the plugin logic (optional — needed for state/popup management)
   FroalaEditor.PLUGINS.myPlugin = function (editor) {
     function _init() {
-      // Called when the editor initializes
-      // Set up any listeners or state here
+      // Called when the editor initializes. Set up listeners and state here.
+      // Clean up anything you create when the editor is destroyed:
+      editor.events.on('destroy', function () {
+        // remove timers, observers, global listeners…
+      });
     }
 
     return {
@@ -68,8 +85,14 @@ import FroalaEditor from 'froala-editor';
 ```js
 new FroalaEditor('#editor', {
   toolbarButtons: ['bold', 'italic', '|', 'myPlugin'],
+  // If the project sets pluginsEnabled, your plugin must be in the list too:
+  // pluginsEnabled: ['image', 'link', 'myPlugin'],
 });
 ```
+
+`pluginsEnabled` is an allowlist. When it is set, a custom plugin that is not listed never starts, and `this.myPlugin` is `undefined` inside commands.
+
+**Custom SVG icon renders empty?** You passed a whole `<svg>` element. The `svg` template only uses `PATH` (and optional `VIEWBOX`).
 
 ---
 
@@ -110,6 +133,9 @@ FroalaEditor.RegisterCommand('myDropdown', {
 Popups let you build floating UI panels (color pickers, link editors, etc.):
 
 ```js
+// Style .my-plugin-layer in your own CSS. Inline style="" attributes and onclick="" handlers
+// are blocked by a Content-Security-Policy that does not allow 'unsafe-inline'.
+
 // 1. Register the popup template
 FroalaEditor.POPUP_TEMPLATES['myPlugin.popup'] = '[_BUTTONS_][_CUSTOM_LAYER_]';
 
@@ -120,17 +146,32 @@ FroalaEditor.PLUGINS.myPlugin = function (editor) {
       buttons: '<div class="fr-buttons">' +
         editor.button.buildList(['myPluginClose']) +
         '</div>',
-      custom_layer: '<div class="fr-layer fr-active" style="padding:16px">' +
-        '<input id="my-input" type="text" placeholder="Enter value" />' +
-        '<button onclick="applyValue()">Apply</button>' +
+      custom_layer: '<div class="fr-layer fr-active my-plugin-layer">' +
+        '<input class="my-plugin-input" type="text" placeholder="Enter value" aria-label="Value" />' +
+        '<button type="button" class="my-plugin-apply">Apply</button>' +
         '</div>',
     };
-    return editor.popups.create('myPlugin.popup', template);
+    const $popup = editor.popups.create('myPlugin.popup', template);
+
+    // Bind DOM events with editor.events.$on: Froala removes them when the editor is destroyed,
+    // and no inline onclick is needed.
+    editor.events.$on($popup, 'click', '.my-plugin-apply', function () {
+      const value = $popup.find('.my-plugin-input').get(0).value;
+      // Escape user input before inserting it as HTML
+      const safe = String(value).replace(/[&<>"']/g, (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      editor.selection.restore();
+      editor.html.insert(safe);
+      hidePopup();
+    });
+
+    return $popup;
   }
 
   function showPopup() {
     let $popup = editor.popups.get('myPlugin.popup');
     if (!$popup) $popup = initPopup();
+    editor.selection.save(); // inputs in the popup take focus away from the text
 
     // Position popup at current selection
     editor.popups.setContainer('myPlugin.popup', editor.$sc);
@@ -258,7 +299,12 @@ FroalaEditor.RegisterShortcut(FroalaEditor.KEYCODE.K, 'myPlugin', null, 'K');
 
 ## Loading Order
 
-Plugins must be registered **before** the editor is instantiated. In bundler environments, import your plugin file before creating the editor instance:
+Plugins **and** commands must be registered **before** the editor is created:
+
+- A command registered later has no button (the toolbar is already built).
+- A plugin registered later never starts, so `this.myPlugin` is `undefined` and the button "does nothing".
+
+In bundler environments, import your plugin file before creating the editor instance:
 
 ```js
 import 'froala-editor';

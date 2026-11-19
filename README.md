@@ -1,6 +1,8 @@
 # Froala Agent Skills
 
-Portable [Agent Skills](https://agentskills.io/home) that make an AI coding agent an expert on [Froala WYSIWYG editor](https://froala.com/wysiwyg-editor/) development — initialization, events, custom plugins, AI Assist, Word and Markdown workflows, Filestack uploads, and error diagnosis.
+Froala is a modern, framework-agnostic WYSIWYG rich text editor written in plain JavaScript (no jQuery since version 3). These portable [Agent Skills](https://agentskills.io/home) make an AI coding agent an expert on [Froala WYSIWYG editor](https://froala.com/wysiwyg-editor/) development — initialization, events, custom plugins, AI Assist, Word and Markdown workflows, Filestack uploads, and error diagnosis.
+
+> Checked against **froala-editor 5.6.0** (see `metadata.verified_against` in each `SKILL.md`). CI checks every pull request against that version, and a weekly job compares the skills with the latest Froala release. The validator checks names and structure (options, events, buttons, plugin names, method calls, frontmatter, versions); it cannot prove that an example behaves correctly at runtime.
 
 The skills use the open `SKILL.md` format, so they work in Claude Code, Cursor, Codex, GitHub Copilot, and any other agent that supports it. Install once and your agent answers Froala questions from structured knowledge instead of guessing.
 
@@ -14,7 +16,7 @@ The skills use the open `SKILL.md` format, so they work in Claude Code, Cursor, 
 npx skills add froala/froala-skills
 ```
 
-Installs all seven skills into `.agents/skills/` for any `SKILL.md`-compatible agent, and symlinks them for Claude Code. Add `-g` to install globally, or `-s <skill-name>` to pick individual skills.
+Installs all eight skills into `.agents/skills/` for any `SKILL.md`-compatible agent, and symlinks them for Claude Code. Add `-g` to install globally, or `-s <skill-name>` to pick individual skills.
 
 ### Claude Code plugin marketplace
 
@@ -38,27 +40,31 @@ From a clone of this repository:
 /plugin install froala@froala-skills
 ```
 
-Validate manifest changes before pushing:
+Validate before pushing:
 
 ```
 claude plugin validate . --strict
+node scripts/validate-skills.mjs            # checks every skill against the declared froala-editor version
+node scripts/validate-skills.mjs --froala latest   # checks against the latest release
+node tests/run-negative-tests.mjs           # proves the validator still catches known-bad examples
+node scripts/validate-skills.mjs --write    # regenerates references/plugin-names.md
 ```
 
 ---
 
 ## Skills
 
-The seven skills activate automatically based on your code and questions. You don't invoke them manually — your agent matches the context against each skill's description.
+The eight skills activate automatically based on your code and questions. You don't invoke them manually — your agent matches the context against each skill's description.
 
 ### `froala-initialization-and-sdks`
 
 **Activates when** you import Froala packages, use framework wrappers, or ask about setup.
 
 Covers:
-- Installation for Vanilla JS, React, Vue 3, and Angular
+- Installation for Vanilla JS/TS, React, Next.js, Vue 3, Nuxt, Angular, Svelte and SvelteKit
 - Toolbar configuration and layout options
 - Editor lifecycle and proper destroy/cleanup patterns
-- License key setup for localhost vs. production
+- Licence key setup (the `key` option) and what changes without a key, per version
 
 **Trigger keywords:** `froala-editor`, `react-froala-wysiwyg`, `vue-froala-wysiwyg`, `angular-froala-wysiwyg`, `new FroalaEditor(`, `toolbarButtons`, `heightMin`
 
@@ -101,7 +107,7 @@ Covers:
 Covers two approaches:
 
 **Approach 1 — Official Froala Filestack Plugin (recommended):**
-- Enabling the native `filestack` plugin via `pluginsEnabled: ['filestack']`
+- Enabling the native `filestack` plugin (it is in the `pkgd` bundles — do **not** set `pluginsEnabled: ['filestack']`, which disables every other plugin)
 - `filestackOptions` configuration (`filestackAPI`, `uploadToFilestackOnly`, `pickerOptions`)
 - Plugin events: `filestack.uploadedToFilestack`, `filestack.uploadFailedToFilestack`, `filestack.filestackPickerOpened`, `filestack.filestackPickerClosed`
 - Required CDN dependencies (Filestack JS 3.x, drag-and-drop, transforms UI)
@@ -140,7 +146,7 @@ Covers:
 
 ### `froala-ai-assist`
 
-**Activates when** you add AI writing features — prompts, tone, translate, improve writing, AI Chat or AI image generation.
+**Activates when** you add AI writing features — prompts, tone, translate, improve writing, AI Chat, speech-to-text or autocomplete.
 
 Covers:
 - The required `aiSupplementalTermsAccepted: true`
@@ -163,6 +169,23 @@ Covers:
 - Collaborative editing: `collabConfig`, roles, suggestion mode, comments and version history
 
 **Trigger keywords:** `import_from_word`, `export_to_word`, `markdown.getMarkdown`, `trackChanges`, `collabConfig`, `syncUrl`
+
+---
+
+### `froala-migrate`
+
+**Activates when** you ask to migrate, switch or compare from another rich-text editor to Froala, or to add Froala to a project that already has one.
+
+Covers:
+
+- Detection of TinyMCE, CKEditor 5/4, Quill, Tiptap, ProseMirror, Summernote, Jodit, Lexical, Slate, Draft.js, Editor.js, Trix / Rails Action Text, Toast UI Editor, RichTextEditor, Redactor, Kendo UI for jQuery Editor, SunEditor and pell
+- Feature, toolbar, option and upload mappings: answered in the conversation for a comparison, or written to `FROALA_MIGRATION_PLAN.md` when a migration is requested
+- Starts from Froala's official migration guides where they exist; offers headless mode for projects with their own editor UI
+- Every feature the project uses is mapped to a Froala plugin, option or command, or planned as a Froala custom plugin
+- Content conversion (HTML, Markdown, Quill Delta, Tiptap/ProseMirror JSON, Draft.js, Lexical, Editor.js)
+- Froala built side by side — the existing editor is never removed unless you ask
+
+**Trigger keywords:** `migrate to Froala`, `switch from TinyMCE`, `replace CKEditor`, `Quill to Froala`, `Tiptap to Froala`
 
 ---
 
@@ -206,7 +229,8 @@ froala-skills/
 │   └── marketplace.json    # Marketplace entry (local + remote install)
 ├── skills/
 │   ├── froala-initialization-and-sdks/
-│   │   └── SKILL.md
+│   │   ├── SKILL.md
+│   │   └── references/plugin-names.md   # generated from the package
 │   ├── froala-methods-and-events/
 │   │   └── SKILL.md
 │   ├── froala-custom-plugins/
@@ -217,9 +241,22 @@ froala-skills/
 │   │   └── SKILL.md
 │   ├── froala-document-features/
 │   │   └── SKILL.md
+│   ├── froala-migrate/
+│   │   ├── SKILL.md
+│   │   └── references/          # detection, per-editor mappings, plan template
 │   └── froala-error-diagnosis/
-│       └── SKILL.md
+│       ├── SKILL.md
+│       └── references/plugin-names.md   # generated from the package
+├── scripts/
+│   └── validate-skills.mjs # Checks skills against the published froala-editor package
+├── .github/workflows/
+│   └── validate-skills.yml # Runs the checks on every PR and weekly
+├── tests/
+│   ├── fixtures/           # Deliberately broken examples
+│   └── run-negative-tests.mjs
+├── plugin.json             # Cross-agent plugin manifest (agent-plugins.org)
 ├── skills.sh.json          # Grouping metadata for the skills.sh directory
+├── CHANGELOG.md
 ├── PLUGIN_DESCRIPTION.md
 └── README.md
 ```

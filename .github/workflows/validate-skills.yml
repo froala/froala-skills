@@ -1,0 +1,35 @@
+name: Validate skills
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  schedule:
+    - cron: '0 6 * * 1' # every Monday: compare the skills with the latest Froala release
+  workflow_dispatch:
+    inputs:
+      froala:
+        description: 'froala-editor version to check against ("declared", "latest" or x.y.z)'
+        default: 'declared'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Negative tests (the validator must catch known-bad examples)
+        run: node tests/run-negative-tests.mjs
+      - name: Check skills (PRs and pushes use the version the skills declare)
+        if: github.event_name != 'schedule'
+        env:
+          FROALA_VERSION: ${{ github.event.inputs.froala || 'declared' }}
+        run: node scripts/validate-skills.mjs --froala "$FROALA_VERSION"
+      - name: Check skills against the latest release (weekly)
+        if: github.event_name == 'schedule'
+        run: node scripts/validate-skills.mjs --froala latest --strict-version --check-links

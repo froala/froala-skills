@@ -1,6 +1,6 @@
 # Froala Agent Skills
 
-Portable skills that make an AI coding agent an expert on Froala WYSIWYG editor development — initialization, events, custom plugins, Filestack cloud storage integration, and error diagnosis.
+Froala is a modern, framework-agnostic WYSIWYG rich text editor written in plain JavaScript (no jQuery since version 3). These portable skills make an AI coding agent an expert on Froala WYSIWYG editor development — initialization, events, custom plugins, Filestack cloud storage integration, and error diagnosis.
 
 ---
 
@@ -10,19 +10,22 @@ These skills give an agent deep, structured knowledge of the Froala editor API. 
 
 Written in the open `SKILL.md` format, so they work in Claude Code, Cursor, Codex, GitHub Copilot, and any other agent that supports it.
 
-**No MCP server required.** Everything works through skills — the right Froala API context is surfaced based on what you're working on.
+**No extra server required.** Everything works through skills — the right Froala API context is surfaced based on what you're working on.
 
 ---
 
-## Skills (5)
+## Skills
 
 | Skill | When it activates | What it provides |
 |-------|-------------------|------------------|
-| `froala-initialization-and-sdks` | Importing Froala CSS/JS, using framework wrappers, or configuring editor instances | Installation for Vanilla JS, React, Vue 3, Angular; toolbar/theme config; lifecycle and destroy patterns; license key handling |
-| `froala-methods-and-events` | Writing event listeners, getting/setting HTML content, intercepting keyboard input, or accessing the `editor` instance | Event listener syntax; safe HTML get/set; paste cleanup config; pre-init API call fixes |
-| `froala-custom-plugins` | Registering custom plugins, creating toolbar buttons, building floating popups, or extending formatting | Custom plugin boilerplate; command and dropdown registration; state sync patterns; SVG icon registration; plugin load order |
-| `froala-filestack-integration` | Configuring image/file upload, bypassing the default uploader, or wiring Filestack into the editor | Official `filestack` plugin setup via `pluginsEnabled` and `filestackOptions` (recommended); manual `image.beforeUpload` interception with `client.upload()` and `image.insert()` for advanced cases |
-| `froala-error-diagnosis` | Hitting Froala errors, broken toolbars, or features that silently do nothing | Symptom-indexed diagnosis for missing toolbar buttons, unstyled editors, `FroalaEditor is not defined`, undefined plugin methods, silent upload failures, empty `html.get()`, and `this` context loss |
+| `froala-initialization-and-sdks` | Installing, configuring or licensing Froala in plain JS/TS, a framework wrapper or another official integration | Installation for vanilla JS/TS, React, Next.js, Vue, Nuxt, Angular, Svelte; bundles and plugin names; toolbar and theme config; licensing; SSR rules |
+| `froala-methods-and-events` | Writing event listeners, getting/setting HTML content, intercepting keyboard input, or accessing the `editor` instance | Event listener syntax; safe HTML get/set; paste cleanup config; React ref readiness |
+| `froala-custom-plugins` | Registering custom plugins, creating toolbar buttons, building floating popups, or extending formatting | Custom plugin boilerplate; command and dropdown registration; SVG icon registration; popups without inline handlers; plugin load order |
+| `froala-filestack-integration` | Configuring image/file upload through Filestack, or replacing the default uploader | Official `filestack` plugin setup via `filestackOptions` (never restrict `pluginsEnabled` to `['filestack']`); manual `image.beforeUpload` interception that handles every dropped file |
+| `froala-ai-assist` | Adding AI writing features: prompts, tone, translate, improve writing, AI Chat, autocomplete | Required terms option; backend proxy through `aiAssistRequest`; streaming and conversation continuity; inline-suggestion defaults |
+| `froala-document-features` | Word import/export, Markdown, Track Changes, real-time collaboration | Dependencies and version gates; Markdown mode rules; collaboration roles; verification steps |
+| `froala-error-diagnosis` | Hitting Froala errors, broken toolbars, or features that silently do nothing | Symptom-indexed diagnosis: missing buttons, unstyled editors, SSR errors, uploads, licensing, Word/PDF export, TypeScript |
+| `froala-migrate` | Migrating, switching or comparing from another rich-text editor | Detection, feature mapping to Froala, comparison in the conversation or a migration plan, side-by-side build, content conversion on copies |
 
 ---
 
@@ -32,7 +35,7 @@ Written in the open `SKILL.md` format, so they work in Claude Code, Cursor, Code
 
 > **User:** "How do I add Froala to my React component with a custom toolbar?"
 
-`froala-initialization-and-sdks` activates and provides a complete React component using `react-froala-wysiwyg` with the correct `config` prop, toolbar button list, and cleanup in `useEffect`.
+`froala-initialization-and-sdks` activates and provides a complete React component using `react-froala-wysiwyg` with the correct `config` prop and toolbar button list. The wrapper destroys the editor on unmount, so no `useEffect` cleanup is needed.
 
 ---
 
@@ -56,7 +59,7 @@ Written in the open `SKILL.md` format, so they work in Claude Code, Cursor, Code
 
 > **User:** "How do I make Froala upload images to Filestack instead of my own server?"
 
-`froala-filestack-integration` activates and recommends the official Froala Filestack plugin — enabling it through `pluginsEnabled: ['filestack']` and configuring `filestackOptions` — with the manual `image.beforeUpload` interception path for cases the plugin doesn't cover.
+`froala-filestack-integration` activates and recommends the official Froala Filestack plugin — already included in the `pkgd` bundles and configured through `filestackOptions` — with the manual `image.beforeUpload` interception path for cases the plugin doesn't cover.
 
 ---
 

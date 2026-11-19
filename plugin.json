@@ -1,9 +1,8 @@
-
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "froala",
-  "version": "1.0.0",
-  "description": "Agent Skills for integrating, configuring, customizing, and troubleshooting Froala WYSIWYG HTML Editor.",
+  "version": "1.1.0",
+  "description": "Agent Skills for Froala WYSIWYG Editor: setup for every major framework, events and API, custom plugins, AI Assist, Word/Markdown/Track Changes/collaboration, Filestack uploads, error diagnosis, and migration from other rich-text editors.",
   "author": {
     "name": "Froala",
     "url": "https://froala.com"
@@ -18,6 +17,12 @@
     "vue",
     "angular",
     "javascript",
-    "agent-skills"
+    "agent-skills",
+    "ai-assist",
+    "track-changes",
+    "collaboration",
+    "markdown",
+    "word-import",
+    "migration"
   ]
 }
