@@ -68,7 +68,7 @@ Written in the open `SKILL.md` format, so they work in Claude Code, Cursor, Code
 
 > **User:** "My toolbar button shows up but clicking it does nothing."
 
-`froala-error-diagnosis` activates and works through the likely causes: `RegisterCommand` running after `new FroalaEditor`, the `pluginsEnabled` allowlist, and `this` context loss in callbacks.
+`froala-error-diagnosis` activates and works through the likely causes: the plugin defined after the editor started or missing from `pluginsEnabled`, an arrow-function `callback` losing `this`, or a `commands.before` handler returning `false`. (A command that isn't registered at all doesn't render a button.)
 
 ---
 

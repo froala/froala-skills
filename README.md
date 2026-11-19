@@ -199,10 +199,11 @@ Covers:
 - `FroalaEditor is not defined` / `is not a constructor` (script load order, wrong import style)
 - Plugin method undefined (`editor.image is undefined`, `editor.link is undefined`) — plugin not imported or called before `initialized`
 - Editor does not mount / element not found (selector mismatch, DOM not ready)
-- License warning banner (missing or invalid `key` — note the option is `key`, not `licenseKey`)
-- Toolbar button renders but does nothing (plugin registered after editor init)
-- Image/file upload fails silently (missing `imageUploadURL`, wrong server response shape, CORS)
-- `html.get()` returns empty string (called before editor is ready)
+- Licence notice next to "Powered by Froala" (missing, trial, invalid or expired `key`; the option is `key`, not `licenseKey`), and the 5.6.0 "Powered by Froala Editor" paragraph in saved HTML
+- Toolbar button renders but does nothing (plugin defined after the editor started, arrow-function `callback`, a `commands.before` handler returning `false`)
+- Image/file upload fails (`image.error` codes for a missing `link`, server errors or unparsable responses; CORS) and images lost after reload (temporary `blob:` URLs)
+- `html.get()` throws or returns stale content (called before the editor is initialized)
+- Framework issues: Next.js and SSR errors, Angular budget and NG2012, Vue on Vite 8, TypeScript TS7016, content inserted from code missing from the model
 - `this` is undefined or wrong in event handlers (arrow function context loss)
 - Quick diagnosis checklist for unknown issues
 
@@ -291,7 +292,7 @@ Covers:
 → `froala-document-features` activates → `import_from_word` with mammoth.js for client-side conversion, size and file-type limits, and the import events
 
 **"My toolbar button shows up but clicking it does nothing."**
-→ `froala-error-diagnosis` activates → Checks plugin registration order (`RegisterCommand` must run before `new FroalaEditor`), `pluginsEnabled` allowlist, and `this` context in callbacks
+→ `froala-error-diagnosis` activates → Checks whether the plugin was defined after the editor started or is missing from `pluginsEnabled`, an arrow-function `callback` (Froala calls it with `this` set to the editor), and a `commands.before` handler returning `false`
 
 ---
 
