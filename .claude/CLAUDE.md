@@ -34,7 +34,7 @@ Work on a branch and merge through a PR to `master`.
 
 | Date | Froala version | Scope | PR |
 |---|---|---|---|
-| 2026-11-19 | 5.6.0 | All 7 skills | _pending_ |
+| 2026-11-19 | 5.6.0 | All 7 skills | [#7](https://github.com/froala/froala-skills/pull/7) |
 
 ## Lessons learned
 
