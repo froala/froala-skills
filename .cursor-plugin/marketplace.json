@@ -1,0 +1,16 @@
+{
+  "name": "froala-skills",
+  "owner": {
+    "name": "Froala"
+  },
+  "metadata": {
+    "description": "Agent Skills for the Froala WYSIWYG editor"
+  },
+  "plugins": [
+    {
+      "name": "froala",
+      "source": "./",
+      "description": "Agent Skills for Froala WYSIWYG Editor: setup for every major framework, events and API, custom plugins, AI Assist, Word/Markdown/Track Changes/collaboration, Filestack uploads, error diagnosis, migration from other rich-text editors, and upgrades between Froala versions."
+    }
+  ]
+}

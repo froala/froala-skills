@@ -4,6 +4,8 @@ A complete server for the `aiAssistRequest` client in [../SKILL.md](../SKILL.md)
 
 How it was checked: run with the client from SKILL.md against Froala 5.6.0 in Chromium, with the provider APIs replaced by a local mock (streamed and non-streamed text, dictation, two AI Chat questions keeping one `session_id`). SDK method names were checked in `@anthropic-ai/sdk` 1.10.0, `openai` 7.60.0, `express` 5.3.0 and `express-rate-limit` 8.7.5. Model IDs change: confirm them in each provider's model list before deploying.
 
+**Contents:** [What it does](#what-it-does) · [Code](#code) · [Adapting it](#adapting-it)
+
 ## What it does
 
 | Froala request | Server behaviour |
@@ -138,7 +140,7 @@ app.listen(process.env.PORT || 3000);
 
 - **Authentication.** Replace the requireUser function with your session or JWT check. Keep the editor page and `/api/ai` on the same origin so the session cookie is sent (`credentials: 'same-origin'` in the client); for another origin, configure CORS with credentials.
 - **Rate limits.** The limiter keys on the user, not the IP. Inline suggestions alone can send several requests a minute per active writer; set the limit from real usage, and add a daily budget per user or tenant if AI is metered.
-- **Another provider.** Only the two `anthropic.messages…` calls and the file mapping are provider-specific. Keep the request handling, the model allowlist and the NDJSON stream format, and the client in SKILL.md works unchanged. For OpenAI, the Responses API streams text in events of type "response.output_text.delta" (text in `event.delta`); Froala's [quick start](https://froala.com/wysiwyg-editor/docs/plugins/ai-assist-plugin/quick-start/) has Groq, Gemini and Anthropic handlers written with `fetch`.
+- **Another provider.** Only the two `anthropic.messages…` calls and the file mapping are provider-specific. Keep the request handling, the model allowlist and the NDJSON stream format, and the client in SKILL.md works unchanged. For OpenAI, the Responses API streams text in events of type "response.output_text.delta" (text in `event.delta`); Froala's [quick start](https://froala.com/wysiwyg-editor/docs/plugins/ai-assist-plugin/quick-start/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-ai-assist) has Groq, Gemini and Anthropic handlers written with `fetch`.
 - **No speech-to-text provider.** Delete step 1 and set `aiSpeechToText: false` in the editor, so the microphone button is not shown.
 - **Errors and refusals.** The server sends a refusal (`stop_reason: 'refusal'`) or a provider failure as an error line, and the client throws. AI Chat then shows its generic "Couldn't generate a response" message with a Retry button; Froala does not display your error text.
 - **Prompt injection.** Documents, pasted text, files and web results all reach the model. Don't give this endpoint tools that act on your systems; treat the answer as untrusted HTML and sanitize it before you store or render it outside the editor.

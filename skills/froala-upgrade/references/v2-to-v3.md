@@ -1,8 +1,10 @@
 # Froala 2 (jQuery) → Froala 3 and later
 
-Sources: Froala's guides [Migrate from Version 2 to Version 3](https://froala.com/wysiwyg-editor/docs/migrate-from-v2/) and [Migrate from Version 2 to Version 4](https://froala.com/wysiwyg-editor/docs/migrate-from-version-2-to-version-4/), and a diff of the npm packages `froala-editor` 2.9.8 (the last 2.x release) and 3.2.7. Everything here also applies when going from 2.x straight to 5.x; then also read `v3-to-v4.md`, `v4-to-v5.md` and `5x-minor-releases.md`.
+Sources: Froala's guides [Migrate from Version 2 to Version 3](https://froala.com/wysiwyg-editor/docs/migrate-from-v2/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-upgrade) and [Migrate from Version 2 to Version 4](https://froala.com/wysiwyg-editor/docs/migrate-from-version-2-to-version-4/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-upgrade), and a diff of the npm packages `froala-editor` 2.9.8 (the last 2.x release) and 3.2.7. Everything here also applies when going from 2.x straight to 5.x; then also read `v3-to-v4.md`, `v4-to-v5.md` and `5x-minor-releases.md`.
 
 Old (v2) names below are documented only to find and replace them. They do not exist in Froala 3+.
+
+**Contents:** [Licence](#licence) · [Dependencies and files](#dependencies-and-files) · [Initialization](#initialization) · [Events](#events) · [Methods](#methods) · [Global namespace (custom buttons and plugins)](#global-namespace-custom-buttons-and-plugins) · [Toolbar](#toolbar) · [Options](#options) · [Checklist](#checklist)
 
 ## Licence
 
@@ -57,7 +59,7 @@ The v2→v3 guide says no event was renamed; only how you bind them changed.
 |---|---|
 | `$el.on('froalaEditor.<name>', function (e, editor, p1, p2) {…})` | `events: { <name>: function (p1, p2) {…} }` in the options |
 | Handler receives `(e, editor, …params)` | Handler receives `(…params)`; `this` is the editor |
-| `$el.off('froalaEditor.<name>')` | `editor.events.off('<name>')` |
+| `$el.off('froalaEditor.<name>')` | No direct equivalent: the 5.6.0 `events` module has `on`, `trigger`, `bindClick` and `$on`/`$off` (DOM listeners) but no `off`. Check a flag inside the handler, or `destroy()` the editor and re-create it without the handler |
 | Dynamic binding on the jQuery element | `editor.events.on('<name>', fn)`, after initialization (inside the init callback) |
 | Wrapper configs: `events: { 'froalaEditor.focus': function (e, editor) {…} }` | `events: { focus: function () {…} }` |
 
@@ -85,7 +87,7 @@ In 2.9.8 the class is exposed as `$.FroalaEditor` and `$.FE`. From 3.x it is the
 | `$.FroalaEditor.DEFAULTS`, `$.FroalaEditor.PLUGINS`, `$.FroalaEditor.POPUP_TEMPLATES` | `FroalaEditor.DEFAULTS`, `FroalaEditor.PLUGINS`, `FroalaEditor.POPUP_TEMPLATES` |
 | `$.FroalaEditor.VERSION` | `FroalaEditor.VERSION` |
 
-Icons defined with a Font Awesome `NAME` only need an SVG icon in 3+ (the wrapper READMEs show `FroalaEditor.DefineIcon('insert', { NAME: 'plus', SVG_KEY: 'add' })`). Inside plugins, `editor.$el`, `editor.$box`, `$btn` and `$popup` are Froala's own DOM helpers: keep them. See the froala-custom-plugins skill.
+Icons defined with a Font Awesome `NAME` only need an SVG icon in 3+ (the wrapper READMEs show `FroalaEditor.DefineIcon('insert', { NAME: 'plus', SVG_KEY: 'add' })`). Inside plugins, `editor.$el`, `editor.$box`, `$btn` and `$popup` are Froala's own DOM helpers: keep them. Froala docs: [Custom plugin](https://froala.com/wysiwyg-editor/docs/concepts/custom/plugin/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-upgrade), [Custom button](https://froala.com/wysiwyg-editor/docs/concepts/custom/button/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-upgrade).
 
 ## Toolbar
 

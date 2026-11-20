@@ -1,11 +1,12 @@
 {
   "name": "froala",
   "description": "Agent Skills for Froala WYSIWYG Editor: setup for every major framework, events and API, custom plugins, AI Assist, Word/Markdown/Track Changes/collaboration, Filestack uploads, error diagnosis, migration from other rich-text editors, and upgrades between Froala versions.",
-  "version": "1.1.0",
+  "version": "1.2.0",
+  "icon": "./assets/icon.png",
   "author": {
     "name": "Froala"
   },
-  "homepage": "https://github.com/froala/froala-skills",
+  "homepage": "https://froala.com/wysiwyg-editor/",
   "repository": "https://github.com/froala/froala-skills",
   "license": "MIT",
   "keywords": [
@@ -20,5 +21,7 @@
     "markdown",
     "word-import",
     "migration"
-  ]
+  ],
+  "documentationUrl": "https://froala.com/wysiwyg-editor/docs/",
+  "supportUrl": "https://github.com/froala/froala-skills/issues"
 }

@@ -1,6 +1,6 @@
 # Froala Agent Skills
 
-Froala is a modern, framework-agnostic WYSIWYG rich text editor written in plain JavaScript (no jQuery since version 3). These portable skills make an AI coding agent an expert on Froala WYSIWYG editor development — initialization, events, custom plugins, Filestack cloud storage integration, and error diagnosis.
+Froala is a modern, framework-agnostic WYSIWYG rich text editor written in plain JavaScript (no jQuery since version 3). These portable skills make an AI coding agent an expert on Froala WYSIWYG editor development: setup in every major framework, the API and events, custom plugins, AI Assist, Word, Markdown, Track Changes and collaboration, Filestack uploads, error diagnosis, migration from other editors, and upgrades between Froala versions. Every API name is checked against the published `froala-editor` package, and behavioural evals measure the code agents write with and without the skills.
 
 ---
 

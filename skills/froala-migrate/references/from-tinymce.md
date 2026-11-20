@@ -1,10 +1,13 @@
 # TinyMCE → Froala
 
 Identifiers checked against `tinymce` 8.10.2 (open-source plugins) and the premium plugin identifiers
-listed in Tiny's own agent skill (`tinymce/tinymce-ai-skills`, `skills/tinymce-setup/SKILL.md`).
-Official Froala guide: https://froala.com/wysiwyg-editor/docs/migration-guides/from-tinymce-to-froala/
+listed in Tiny's own agent skill (`tinymce/tinymce-ai-skills`, `skills/tinymce-setup/SKILL.md`,
+`references/plugin-reference.md` and `references/editor-detection.md`, read 2026-11-20).
+Official Froala guide: https://froala.com/wysiwyg-editor/docs/migration-guides/from-tinymce-to-froala/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate
 Froala names checked against `froala-editor` 5.6.0 (CI re-checks the Froala column).
 Confirm anything doubtful in both products' current docs.
+
+**Contents:** [Plugins](#plugins) · [Toolbar buttons](#toolbar-buttons) · [Options and API](#options-and-api) · [Content](#content)
 
 ## Plugins
 
@@ -33,7 +36,7 @@ Confirm anything doubtful in both products' current docs.
 | `searchreplace` | `findReplace` — `findReplaceButton` | |
 | `table` | `table` — `insertTable` | |
 | `wordcount` | `wordCounter`, `charCounter` | `wordCounterMax`, `charCounterMax` |
-| `accordion` | No built-in equivalent | `details` / `summary` are in Froala's default `htmlAllowedTags`, so existing accordions load. Add an insert button as a custom command (`froala-custom-plugins`) |
+| `accordion` | No built-in equivalent | `details` / `summary` are in Froala's default `htmlAllowedTags`, so existing accordions load. Add an insert button as a custom command ([Custom button](https://froala.com/wysiwyg-editor/docs/concepts/custom/button/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate)) |
 | `insertdatetime` | No built-in equivalent | Custom command that calls `html.insert()` with the formatted date |
 | `nonbreaking` | No built-in button | Custom command inserting `&nbsp;`, or add it to a `specialCharactersSets` entry |
 | `visualblocks`, `visualchars` | No built-in equivalent | Usually dropped; `codeView` (`html` button) shows the markup |
@@ -53,7 +56,7 @@ Confirm anything doubtful in both products' current docs.
 | `tinymceai` | `aiAssist` — `aiAssist`, `aiShortCuts`, `aiChatAssistant` | Bring your own AI provider through `aiAssistRequest` |
 | `advtable` | `table` | Compare each advanced table feature the project uses |
 | `advcode` | `codeView` — `html` | `codeMirror` for highlighting |
-| `uploadcare` | `filestack` | Managed uploads through Filestack (`froala-filestack-integration`) |
+| `uploadcare` | `filestack` | Managed uploads through Filestack: `filestackOptions.filestackAPI`; the plugin needs the filestack-js 3.x `<script>` globals ([Filestack plugin](https://froala.com/wysiwyg-editor/docs/plugins/filestack-plugin/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate)) |
 | `tinymcespellchecker` | `spellChecker` | Third-party file `spell_checker.min.js`, which uses the WebSpellChecker service |
 | `editimage` | `imageTUI` | Third-party file |
 | `formatpainter` | `paintFormat` — `paintFormat` | Froala 5.6.0+. Copies inline formatting only; `paintFormatContinuous` keeps paint mode on |
@@ -66,6 +69,28 @@ Confirm anything doubtful in both products' current docs.
 | `footnotes`, `tableofcontents` | No built-in plugin | Existing markup loads as HTML. A table of contents can be a custom command that reads the headings and uses `linkToAnchor` anchors |
 | `math` | No built-in plugin | Third-party MathType plugin for Froala (Wiris, `@wiris/mathtype-froala`); check its licence and Froala 5 support. Formulas already stored as MathML or images load as HTML |
 | `linkchecker` | No built-in plugin | Run link checks on the server or as a custom plugin |
+
+### TinyMCE premium plugin options and buttons
+
+Options and toolbar buttons that TinyMCE's own setup skill configures for the premium plugins above.
+
+| TinyMCE | Froala | Notes |
+|---|---|---|
+| `tinymceai-chat`, `tinymceai-quickactions`, `tinymceai-review` buttons | `aiChatAssistant`, `aiShortCuts` (+ `aiAssist`), `aiImproveWriting` | `aiShortCuts` holds only Change tone and Translate; Improve Writing is its own button |
+| `tinymceai_token_provider`, `ai_request` | `aiAssistRequest` | Your function calls your own backend, which holds the provider key. Also set `aiSupplementalTermsAccepted: true` |
+| `tinymceai_quickactions_change_tone_menu` | `aiAssistToneOptions` (and `aiAssistTranslateOptions`) | `{ title, prompt }` items |
+| `tinymceai_quickactions_menu`, `tinymceai_quickactions_chat_prompts` | No equivalent option | Users type their own prompt in `aiAssist` or AI Chat |
+| `addcomment` button | `collabAddComment` | |
+| `tinycomments_mode`, `tinycomments_create`, `tinycomments_reply`, `tinycomments_edit_comment`, `tinycomments_delete`, `tinycomments_delete_all`, `tinycomments_delete_comment`, `tinycomments_lookup` | `collabConfig.commentsUrl` | Froala stores comments through one REST URL (the `CollabPersistence` routes of `wysiwyg-editor-node-sdk`), not per-action callbacks. Convert existing comment records on the server |
+| `user_id`, `fetch_users` (commenter identity, mention list) | `collabConfig.user`, `collabConfig.mentionableUsers` | |
+| `revisionhistory_fetch` | `collabConfig.versionControl.url` | Version history is stored by the SDK's `VersionControl` routes; existing revisions don't import automatically |
+| `suggestededits` button | `trackChanges` | Put only `trackChanges` in `toolbarButtons`; it opens the sub-toolbar |
+| `exportpdf`, `exportword`, `importword` buttons | `getPDF`, `export_to_word`, `import_from_word` | |
+| `a11ycheck` button | `accessibilityChecker` | |
+| `spellchecker` button | `spellChecker` | Third-party file `spell_checker.min.js` |
+| `advtablerownumbering` button | No equivalent | |
+| `uploadcare` button, `uploadcare_public_key` | `openFilePicker` (or the Insert Image popup's `openFilePickerImage`), `filestackOptions.filestackAPI` | Files already stored on Uploadcare keep their URLs |
+| `mergetags_list`, `advtemplate_list` | `options` of a custom dropdown command (`FroalaEditor.RegisterCommand` with `type: 'dropdown'`) | The callback inserts the chosen tag or template with `html.insert()` |
 
 ## Toolbar buttons
 
@@ -110,7 +135,7 @@ Froala puts every action in the toolbar: add TinyMCE's menu-bar actions to `tool
 | `content_css`, `content_style` | `iframe: true` with `iframeStyleFiles` / `iframeStyle`, or CSS scoped to `editorClass` | Froala's official guide suggests `editorClass` or `iframeStyle`. Display pages use `fr-view` |
 | `images_upload_url` | `imageUploadURL` | Response key differs, see below |
 | `images_upload_handler` that only adds headers or fields | `requestHeaders`, `requestWithCredentials`, `imageUploadParams`, `imageUploadParam`, `imageUploadMethod` | No custom code needed |
-| `images_upload_handler` with its own upload (signed URLs, SDK) | `image.beforeUpload` event + `image.insert()` | Return `false` to take over the upload; the pattern is in `froala-filestack-integration` |
+| `images_upload_handler` with its own upload (signed URLs, SDK) | `image.beforeUpload` event + `image.insert()` | Read `editor.image.get()` once (the image being replaced, or `null`), upload the files yourself, call `editor.image.insert(url, false, null, replacing)` for the first file and pass `null` for the rest, and return `false` so Froala skips its own upload |
 | `image_list` | `imageManagerLoadURL` (`imageManager`) | Endpoint returns the image list as JSON |
 | `license_key` / Tiny Cloud API key | `key` | Froala activation key |
 | `readonly: true`, `editor.mode.set('readonly')` | `edit.off()` / `edit.on()` | Call after `initialized` |

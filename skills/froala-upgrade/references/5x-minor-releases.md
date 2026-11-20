@@ -1,6 +1,6 @@
 # Froala 5.x minor releases (5.0.0 → 5.6.0)
 
-Sources: the [changelog](https://froala.com/wysiwyg-editor/changelog/), [Migrating from Froala V4 to Froala V5](https://froala.com/wysiwyg-editor/docs/migrating-from-froala-4-to-froala-5/) (options, methods and events per version) and the npm packages `froala-editor` 5.0.0 – 5.6.0 (each feature below was checked in the package of the version named).
+Sources: the [changelog](https://froala.com/wysiwyg-editor/changelog/), [Migrating from Froala V4 to Froala V5](https://froala.com/wysiwyg-editor/docs/migrating-from-froala-4-to-froala-5/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-upgrade) (options, methods and events per version) and the npm packages `froala-editor` 5.0.0 – 5.6.0 (each feature below was checked in the package of the version named).
 
 Minor releases inside 5.x keep the same licence key and add features; none removed an option or a toolbar command (package diff 5.0.0 → 5.6.0). Still read the rows between the installed and the target version: some change default output or wrapper behaviour.
 
