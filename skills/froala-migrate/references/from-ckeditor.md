@@ -73,7 +73,7 @@ Support and licence facts for CKEditor 4 and 5 (with sources) are in `vendor-sta
 | `language` | `language` | Load the Froala language file |
 | `toolbar.items` | `toolbarButtons` | `toolbar.shouldNotGroupWhenFull` → `toolbarButtons` groups and `toolbarButtonsMD` / `SM` / `XS` |
 | `simpleUpload.uploadUrl`, `simpleUpload.headers`, `simpleUpload.withCredentials` | `imageUploadURL`, `requestHeaders`, `requestWithCredentials` | Response key differs, see below |
-| custom `UploadAdapter` | `image.beforeUpload` event + `image.insert()` | Upload the files yourself, call `editor.image.insert(url, false, null, editor.image.get())` for each, and return `false` so Froala skips its own upload |
+| custom `UploadAdapter` | `image.beforeUpload` event + `image.insert()` | Read `editor.image.get()` once (the image being replaced, or `null`) and upload the files yourself. Insert one file at a time with `editor.image.insert(url, false, null, replacing)` for the first file and `null` for the rest, waiting for `image.inserted` / `image.replaced` before the next insert and calling `editor.selection.setAfter()` on the previous image first (otherwise later images land at the start of the document). Return `false` so Froala skips its own upload. Full code (if installed): the froala-filestack-integration skill, "Manual Interception" |
 | `htmlSupport` (General HTML Support) | `htmlAllowedTags`, `htmlAllowedAttrs` | Extend Froala's defaults; still sanitize on the server |
 | `editor.getData()` / `setData()` | `html.get()` / `html.set()` | |
 | `editor.model.document.on('change:data')` | `contentChanged` event | |

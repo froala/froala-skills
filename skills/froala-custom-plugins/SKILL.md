@@ -369,7 +369,7 @@ Test in a real browser (Playwright, Cypress or WebdriverIO): Froala needs a real
 | Check | How |
 |---|---|
 | Plugin started | `editor.myPlugin` is defined after `initialized` (catches a missing `pluginsEnabled` entry or late registration) |
-| Button rendered | `editor.$tb.find('[data-cmd="myPlugin"]').length === 1` |
+| Button rendered | `editor.$tb.find('button[data-cmd="myPlugin"]').length === 1` (a dropdown's options carry the same `data-cmd`, so match the `button`) |
 | Command works | `editor.commands.exec('myPlugin')`, then assert on `editor.html.get()` |
 | Model updated | A `contentChanged` handler ran (catches a missing `undo.saveStep()` outside commands) |
 | Undo works | `editor.undo.run()` restores the previous HTML |
@@ -388,7 +388,7 @@ This step is mandatory. Do not report the plugin as finished until each tier you
 
 1. **Build.** The project builds, and type-checks if it uses TypeScript, with no errors.
 2. **Browser, if you have a browser automation tool** (Playwright, a Chrome MCP server or similar). Load the page and check, after the `initialized` event:
-   - the custom button renders: `editor.$tb.find('[data-cmd="myPlugin"]').length === 1` (use your command name);
+   - the custom button renders: `editor.$tb.find('button[data-cmd="myPlugin"]').length === 1` (use your command name);
    - `editor.myPlugin` is defined (the plugin started), and clicking the button or `editor.commands.exec('myPlugin')` changes `editor.html.get()` as expected;
    - the console has no errors. Without a licence key, the 5.6.0 licence message in the console is expected.
 3. **Otherwise, ask the user** to confirm: the button is visible with its icon, clicking it does what it should, any shortcut or popup works, built-in shortcuts such as Ctrl+K still work, and the browser console shows no errors.

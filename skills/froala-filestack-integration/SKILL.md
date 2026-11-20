@@ -117,20 +117,33 @@ Use this when you need custom upload logic not covered by the official plugin â€
 
 <script>
   const fsClient = filestack.init('YOUR_FILESTACK_API_KEY');
+  let resolveInsert = null; // image.insert() finishes asynchronously; these events report the result
 
   new FroalaEditor('#editor', {
     events: {
+      'image.inserted'($img) { if (resolveInsert) resolveInsert($img); },
+      'image.replaced'($img) { if (resolveInsert) resolveInsert($img); },
+      // A URL that fails to load: carry on. (5.6.0 also marks the image inserted just before it
+      // with fr-error, and html.get() then leaves that image out; reproduced.)
+      'image.error'() { if (resolveInsert) resolveInsert(null); },
       'image.beforeUpload'(files) {
         const editor = this; // the editor instance (method shorthand keeps `this`)
         const list = Array.from(files); // a drop can contain several files
         const replacing = editor.image.get(); // set when the user replaces an existing image
 
         (async () => {
-          // Upload in order and insert in the same order. Only the first file may replace an image.
+          // Upload and insert one at a time, in order. Only the first file may replace an image.
+          let previous = null;
           for (const [i, file] of list.entries()) {
             try {
               const result = await fsClient.upload(file);
-              editor.image.insert(result.url, false, null, i === 0 ? replacing : null);
+              // Froala drops the caret after an insert: put it after the previous image,
+              // or later images land at the start of the document.
+              if (previous) editor.selection.setAfter(previous.get(0));
+              previous = (await new Promise((resolve) => {
+                resolveInsert = resolve;
+                editor.image.insert(result.url, false, null, i === 0 ? replacing : null);
+              })) || previous;
             } catch (err) {
               console.error(`Filestack upload failed for ${file.name}:`, err); // keep going with the rest
             }
@@ -152,20 +165,29 @@ import * as filestack from 'filestack-js'; // npm filestack-js (4.x) is fine her
 import 'froala-editor/js/plugins/image.min.js';
 
 const fsClient = filestack.init(import.meta.env.VITE_FILESTACK_API_KEY);
+let resolveInsert = null; // one editor per page; see the vanilla example for why
 
 // Outside the component: the wrapper reads config once.
 const config = {
   events: {
+    'image.inserted'($img) { if (resolveInsert) resolveInsert($img); },
+    'image.replaced'($img) { if (resolveInsert) resolveInsert($img); },
+    'image.error'() { if (resolveInsert) resolveInsert(null); },
     'image.beforeUpload'(files) {
       const editor = this; // `this` is the Froala editor instance inside function()
       const list = Array.from(files);
       const replacing = editor.image.get();
 
       (async () => {
+        let previous = null;
         for (const [i, file] of list.entries()) {
           try {
             const result = await fsClient.upload(file);
-            editor.image.insert(result.url, false, null, i === 0 ? replacing : null);
+            if (previous) editor.selection.setAfter(previous.get(0));
+            previous = (await new Promise((resolve) => {
+              resolveInsert = resolve;
+              editor.image.insert(result.url, false, null, i === 0 ? replacing : null);
+            })) || previous;
           } catch (err) {
             console.error(`Upload error for ${file.name}:`, err);
           }

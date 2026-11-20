@@ -22,7 +22,7 @@ Froala cleans HTML when content is set or pasted, using `htmlAllowedTags`, `html
 
 | Option | Default |
 |---|---|
-| `htmlRemoveTags` | `['script', 'style']`: removed together with their content |
+| `htmlRemoveTags` | `['script', 'style']`: removed together with their content. `html.set()` first copies some `<style>` rules onto matching elements as inline `style` attributes (reproduced in 5.6.0) |
 | `htmlAllowedTags` | A long list that includes `iframe`, `embed`, `object`, `script` and `style` (the last two are then removed by `htmlRemoveTags`) |
 | `htmlAllowedAttrs` | A long list with no `on…` event-handler attributes |
 | `htmlAllowedStyleProps` | `['.*']` (every CSS property) |
@@ -34,7 +34,7 @@ Don't remove `script` from `htmlRemoveTags`, and don't add `on…` attributes to
 
 ## The `DOMPurify` option
 
-`DOMPurify` is in the 5.6.0 `DEFAULTS` (default `window.DOMPurify`) but is not on the options docs page or in `index.d.ts`. Froala does **not** bundle DOMPurify. If the page loads DOMPurify as a global, or you pass the library as `DOMPurify: DOMPurify`, Froala's cleaning step also runs `DOMPurify.sanitize()` with `ALLOWED_TAGS` set to `htmlAllowedTags` and `ALLOWED_ATTR` set to `htmlAllowedAttrs` (unless they are `['.*']`). The changelog for 4.4 says "Updated Dompurify library integration within Froala to respect the configurable options". It is an extra client-side layer, not a replacement for server-side sanitising.
+`DOMPurify` is in the 5.6.0 `DEFAULTS` (default `window.DOMPurify`) but is not on the options docs page or in `index.d.ts`. Froala does **not** bundle DOMPurify. The default is read once, when the Froala script loads: a `window.DOMPurify` global counts only if DOMPurify loaded **before** Froala (reproduced in 5.6.0: loaded after, it is never called). In a bundler, or whenever the order is not certain, pass the library as `DOMPurify: DOMPurify`. Then Froala's cleaning step, on `html.set()` and on paste, also runs `DOMPurify.sanitize()` with `ALLOWED_TAGS` set to `htmlAllowedTags` and `ALLOWED_ATTR` set to `htmlAllowedAttrs` (unless they are `['.*']`). The changelog for 4.4 says "Updated Dompurify library integration within Froala to respect the configurable options". It is an extra client-side layer, not a replacement for server-side sanitising.
 
 ## Displaying saved content
 
