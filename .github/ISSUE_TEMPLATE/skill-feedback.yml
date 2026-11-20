@@ -1,0 +1,108 @@
+name: Skill feedback
+description: An agent using a Froala skill gave a wrong, outdated or unhelpful answer.
+title: "[skill-feedback] <skill>: <short summary>"
+labels: ["skill-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the Froala Agent Skills. Paste only the relevant part of the prompt and output.
+        **Do not paste license keys, API keys, tokens or other secrets.** Replace them with `<redacted>`.
+
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Skill
+      description: Which skill was used, or should have been used?
+      options:
+        - froala-initialization-and-sdks
+        - froala-methods-and-events
+        - froala-custom-plugins
+        - froala-filestack-integration
+        - froala-ai-assist
+        - froala-document-features
+        - froala-migrate
+        - froala-upgrade
+        - froala-error-diagnosis
+        - Not sure / no skill activated
+    validations:
+      required: true
+
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Agent
+      description: Which coding agent were you using?
+      options:
+        - Claude Code
+        - Cursor
+        - GitHub Copilot (VS Code / IDE)
+        - GitHub Copilot CLI or cloud agent
+        - OpenAI Codex
+        - Windsurf / Devin
+        - Gemini CLI
+        - Google Antigravity
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: agent-details
+    attributes:
+      label: Agent version and model (optional)
+      placeholder: "Agent version and model, if known"
+
+  - type: input
+    id: froala-version
+    attributes:
+      label: Froala version
+      description: The `froala-editor` version in your project (and framework wrapper, if any).
+      placeholder: "e.g. froala-editor 5.6.0, react-froala-wysiwyg 5.6.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install-method
+    attributes:
+      label: How were the skills installed?
+      options:
+        - npx skills add
+        - Claude Code plugin marketplace
+        - Manual copy
+        - Other
+    validations:
+      required: false
+
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Prompt
+      description: What you asked the agent.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: What the agent produced
+      description: The relevant code or answer. Trim it to the part that is wrong.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What was wrong, and what you expected
+      description: For example a wrong option or event name, a missing plugin import, an outdated API, or a link to the Froala docs page that shows the correct approach.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: no-secrets
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have not pasted any Froala license keys, API keys, tokens or other secrets.
+          required: true

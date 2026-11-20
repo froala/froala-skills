@@ -1,0 +1,85 @@
+{
+  "_comment": "Categories: external = non-Froala names (other libraries, build tools, parameters, product names) accepted only where a generic identifier is checked (inline code, descriptions, camelCase keys); options/events/buttons/plugins/methods ('module.method') = accepted by that one check only; intentionallyInvalid = names skills mention only to say they are wrong (allowed in prose, an error in code). Every entry needs a real reason.",
+  "external": [
+    {
+      "name": "onChunk",
+      "reason": "Parameter name used in the aiAssistRequest examples, not a Froala identifier"
+    },
+    {
+      "name": "myPlugin",
+      "reason": "Example name of a custom plugin in the custom-plugins skill"
+    },
+    {
+      "name": "myBtn",
+      "reason": "Example name of a custom command"
+    },
+    {
+      "name": "allowedCommonJsDependencies",
+      "reason": "Angular CLI build option in angular.json, not a Froala identifier"
+    },
+    {
+      "name": "maximumWarning",
+      "reason": "Angular CLI bundle-budget setting in angular.json, not a Froala identifier"
+    },
+    {
+      "name": "attachRoutes",
+      "reason": "wysiwyg-editor-node-sdk 5.6.0 API (CollabPersistence/VersionControl/AsyncSave.attachRoutes in lib/*.js), named in the collaboration docs of froala-document-features"
+    },
+    {
+      "name": "authMiddleware",
+      "reason": "Option of the wysiwyg-editor-node-sdk 5.6.0 attachRoutes functions (lib/collab_persistence.js, version_control.js, async_save.js), not a froala-editor identifier"
+    },
+    {
+      "name": "OpenAI",
+      "reason": "AI provider named in the froala-ai-assist description, not a Froala identifier"
+    },
+    {
+      "name": "SvelteKit",
+      "reason": "Framework named in the froala-initialization-and-sdks description, not a Froala identifier"
+    },
+    {
+      "name": "TinyMCE",
+      "reason": "Competitor editor named in the froala-migrate description"
+    },
+    {
+      "name": "ProseMirror",
+      "reason": "Competitor editor named in the froala-migrate description"
+    },
+    {
+      "name": "RichTextEditor",
+      "reason": "Competitor editor (@richscripts/richtexteditor) named in the froala-migrate description"
+    },
+    {
+      "name": "SunEditor",
+      "reason": "Competitor editor named in the froala-migrate description"
+    },
+    {
+      "name": "jQuery",
+      "reason": "Library named in descriptions (Kendo UI for jQuery, the jQuery-era Froala 2), not a Froala identifier"
+    }
+  ],
+  "options": [
+    {
+      "name": "importFromWordMammoth",
+      "reason": "Verified in import_from_word.min.js DEFAULTS; listed in case the token scan misses minified option names"
+    }
+  ],
+  "events": [],
+  "buttons": [],
+  "plugins": [],
+  "methods": [],
+  "intentionallyInvalid": [
+    {
+      "name": "licenseKey",
+      "reason": "Skills warn that this is NOT a Froala option (the option is key)"
+    },
+    {
+      "name": "editor.text.get",
+      "reason": "Skills warn that this API does not exist"
+    },
+    {
+      "name": "text.get",
+      "reason": "Skills warn that this API does not exist"
+    }
+  ]
+}

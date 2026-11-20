@@ -1,0 +1,93 @@
+# Security and accessibility
+
+Part of the froala-initialization-and-sdks skill (verified against froala-editor 5.6.0). Every option name and default below was checked in the 5.6.0 package (`DEFAULTS` in `js/froala_editor.min.js` and `js/plugins/*.min.js`). Where something could not be confirmed, this file says so.
+
+## Contents
+
+- XSS: Froala's filtering is client-side only
+- The `DOMPurify` option
+- Displaying saved content
+- Paste rules
+- Uploads
+- Keys and secrets
+- Content Security Policy (CSP)
+- Accessibility
+- Right-to-left text
+
+---
+
+## XSS: Froala's filtering is client-side only
+
+Froala cleans HTML when content is set or pasted, using `htmlAllowedTags`, `htmlAllowedAttrs`, `htmlAllowedStyleProps` and `htmlRemoveTags`. 5.6.0 defaults:
+
+| Option | Default |
+|---|---|
+| `htmlRemoveTags` | `['script', 'style']`: removed together with their content. `html.set()` first copies some `<style>` rules onto matching elements as inline `style` attributes (reproduced in 5.6.0) |
+| `htmlAllowedTags` | A long list that includes `iframe`, `embed`, `object`, `script` and `style` (the last two are then removed by `htmlRemoveTags`) |
+| `htmlAllowedAttrs` | A long list with no `on…` event-handler attributes |
+| `htmlAllowedStyleProps` | `['.*']` (every CSS property) |
+| `htmlExecuteScripts` | `true` |
+
+All of this runs in the browser. Anyone can bypass it by sending HTML straight to your save endpoint. **Always sanitise the HTML on the server before storing or displaying it**, with an allowlist that matches the tags and attributes your toolbar can produce. Maintained HTML sanitisers include DOMPurify (browser, or Node.js with a DOM such as jsdom), sanitize-html (Node.js), nh3 (Python; bleach is deprecated), HTML Purifier (PHP), the OWASP Java HTML Sanitizer, HtmlSanitizer (.NET) and rails-html-sanitizer / Loofah (Ruby). Follow the library's own documentation for its API.
+
+Don't remove `script` from `htmlRemoveTags`, and don't add `on…` attributes to `htmlAllowedAttrs`.
+
+## The `DOMPurify` option
+
+`DOMPurify` is in the 5.6.0 `DEFAULTS` (default `window.DOMPurify`) but is not on the options docs page or in `index.d.ts`. Froala does **not** bundle DOMPurify. The default is read once, when the Froala script loads: a `window.DOMPurify` global counts only if DOMPurify loaded **before** Froala (reproduced in 5.6.0: loaded after, it is never called). In a bundler, or whenever the order is not certain, pass the library as `DOMPurify: DOMPurify`. Then Froala's cleaning step, on `html.set()` and on paste, also runs `DOMPurify.sanitize()` with `ALLOWED_TAGS` set to `htmlAllowedTags` and `ALLOWED_ATTR` set to `htmlAllowedAttrs` (unless they are `['.*']`). The changelog for 4.4 says "Updated Dompurify library integration within Froala to respect the configurable options". It is an extra client-side layer, not a replacement for server-side sanitising.
+
+## Displaying saved content
+
+The view components do not sanitise: React `FroalaEditorView` uses `dangerouslySetInnerHTML`, and Vue `<froalaView>` and Angular `[froalaView]` set `innerHTML` directly (checked in the 5.6.0 wrapper sources). Sanitise on the server, or sanitise before passing the HTML in. Load `froala_style.min.css` and wrap displayed content in an `fr-view` element.
+
+## Paste rules
+
+Pasted content goes through the same `html*` rules plus paste-specific ones. 5.6.0 package defaults (the options docs page differs; trust the package):
+
+| Option | Default |
+|---|---|
+| `pasteDeniedTags` | `['colgroup', 'col', 'meta']` |
+| `pasteDeniedAttrs` | `['class', 'id']` |
+| `pasteAllowedStyleProps` | `['.*']` |
+
+These change what pasting produces; they are not a security boundary. See froala-methods-and-events for paste cleanup.
+
+## Uploads
+
+Froala checks `imageMaxSize` (default 10 MB), `imageAllowedTypes`, `fileMaxSize` (default 10 MB), `fileAllowedTypes` (default `['*']`) and `videoMaxSize` (default 50 MB) in the browser only. The upload endpoint must check on its own:
+
+- the file's real type (inspect its content; don't trust the file name or the `Content-Type` header), and its size;
+- authentication and authorisation for the user who uploads;
+- a generated file name and a storage location that does not execute uploaded files; serve uploads from a separate domain or with `Content-Disposition: attachment` where possible;
+- SVG: it can contain script. Reject it, or sanitise it, unless you need it.
+
+Return `{ "link": "https://…" }` on success. To send credentials or a CSRF token with uploads, use `requestHeaders` or `imageUploadParams` / `fileUploadParams`, and `requestWithCredentials` for cookies on another origin.
+
+## Keys and secrets
+
+- The Froala activation `key` is domain-locked and always reaches the browser. That is expected; still read it from an environment variable and don't commit it to a public repository.
+- Real secrets never go in client code: AI provider API keys (call your own endpoint from `aiAssistRequest` or `aiAssistEndpoint`; see froala-ai-assist), cloud-storage secret keys (compute S3 upload signatures on the server), and Filestack security secrets.
+
+## Content Security Policy (CSP)
+
+What can be confirmed for 5.6.0:
+
+- The changelog for 5.2.0 says "Fixed (partially), Inline Styles Generated by Froala Are Blocked in Strict CSP Environments (No unsafe-inline Support)". Froala does not document full support for a CSP without `'unsafe-inline'` in `style-src`.
+- Formatting such as text colour, background colour and font size is stored as inline `style` attributes in the content (the colors and font-size plugins apply CSS properties), so a strict `style-src` can also affect how saved content displays.
+- Froala does not document which `script-src`, `style-src`, `img-src` or `connect-src` values it needs. The page needs at least: the script and stylesheet origins you load Froala from (for example `cdn.jsdelivr.net`), `img-src` for your upload host plus `blob:` (images before upload) and `data:` if you allow pasted or SVG images, and `connect-src` for your upload, save and AI endpoints.
+
+Because the exact requirements are not documented, test with your real policy: first in `Content-Security-Policy-Report-Only` mode, exercising every toolbar feature you enable, then enforce it. Tell the user this was not confirmed by Froala's documentation.
+
+## Accessibility
+
+- **Keyboard:** Froala's [accessibility page](https://froala.com/wysiwyg-editor/accessibility/) says the toolbar "can be accessed by using the ALT+F10 keyboard combination". The full list of shortcuts is on the [shortcuts page](https://froala.com/wysiwyg-editor/shortcuts/). `shortcutsEnabled` selects which shortcuts work; `shortcutsHint` (default `true`) shows them in button tooltips. Custom shortcuts: froala-custom-plugins.
+- **Tab order:** `tabIndex` (default `null`) sets the editing area's `tabindex`. If it is not set, Froala copies the `tabindex` attribute of the original element.
+- **Tooltips:** `tooltips` (default `true`) shows button names on hover (not on mobile devices).
+- **ARIA:** toolbar buttons are `<button>` elements with `aria-label`; the package also sets `aria-pressed`, `aria-expanded`, `aria-disabled` and `aria-selected` on toolbar and dropdown items. The accessibility page says interface elements "convey identity, operation and state through WAI-ARIA bindings".
+- **Label the editor** with visible text near it. 5.6.0 has no documented option for an accessible name of the editing area, and no option for the `title` of the iframe used with `iframe: true`. Check the result with an audit tool such as axe or Lighthouse.
+- **Accessibility Checker (5.6.0+):** add the `accessibilityChecker` button (plugin file `accessibility_checker.min.js`, in the `pkgd` bundles) so authors can find and fix WCAG issues in their content. Options: `accessibilityCheckerLevel` (`'AA'`), `accessibilityCheckerAutoCheck` (`false`), `accessibilityCheckerRules` (`[]`), `accessibilityCheckerMaxIssues` (`500`). `editor.accessibilityChecker.check()` returns the findings without opening the popup.
+- **Images:** keep the image alt-text button (`imageAlt`) in `imageEditButtons` so authors can add alternative text.
+
+## Right-to-left text
+
+`direction` defaults to `'auto'` (follows the typed text). Set `direction: 'rtl'` for right-to-left content. The `ar`, `fa`, `he` and `ku` language files switch `direction` to `'rtl'` themselves.
