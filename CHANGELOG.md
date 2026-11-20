@@ -25,6 +25,10 @@ Hardening and agent-DX release. Still verified against `froala-editor` 5.6.0.
 
 ### Fixed
 
+- **filestack-integration / migrate (TinyMCE, CKEditor):** uploading several images at once put every image after the first at the start of the document, in reverse order (the CKEditor row kept only the last image). `image.insert()` finishes asynchronously and drops the caret. The examples now insert one file at a time, wait for `image.inserted` / `image.replaced`, and call `selection.setAfter()` on the previous image. Reproduced and re-checked in headless Chromium.
+- **document-features:** turn Markdown mode on before `setMarkdown()`. Calling it while the mode is off and then toggling throws in 5.6.0. Documented what `html.get()` returns in Markdown mode.
+- **security-and-accessibility:** Froala only uses `DOMPurify` if it loads before Froala (or is passed as the option); `<style>` rules are copied onto elements as inline styles.
+- **custom-plugins:** the verify check counts `button[data-cmd]`, because dropdown options use the same `data-cmd`.
 - **migrate:** the Quill mapping used `events.blur()`, which doesn't exist; now `editor.el.blur()`.
 - **upgrade:** the v2→v3 events table mapped `$el.off()` to `editor.events.off()`, which doesn't exist (the `events` module has no `off`).
 - **upgrade:** links to `plugin-names.md` pointed into another skill and broke when froala-upgrade was installed alone.

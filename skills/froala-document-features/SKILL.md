@@ -137,6 +137,8 @@ Docs: [Import from Word](https://froala.com/wysiwyg-editor/docs/plugins/import-f
 
 Either call returns `false` when a `markdown.beforeGet` / `markdown.beforeSet` handler cancels it, or (setter) when the argument is not a string.
 
+Turn Markdown mode on **before** calling `setMarkdown()`. In 5.6.0, `markdown.toggle()` after an off-mode `setMarkdown()` throws `TypeError: Cannot read properties of undefined (reading '0')` when the editor already has content (reproduced). In Markdown mode, `html.get()` returns the Markdown source as text in a `<p>`, with line breaks collapsed; if the app stores Markdown, save `getMarkdown()`.
+
 ```js
 new FroalaEditor('#editor', {
   toolbarButtons: ['bold', 'italic', '|', 'markdown'],
@@ -264,7 +266,7 @@ Requires 5.3.0+. Docs: https://froala.com/wysiwyg-editor/docs/plugins/collaborat
 | Exported file won't open in LibreOffice/Google Docs | html-docx-js output targets Microsoft Word | Convert on the server if needed |
 | Import silently rejects a file | Over `importFromWordMaxFileSize` (default 3 MB) or not in `importFromWordFileTypesAllowed` | Raise the limit or allow the type |
 | `getMarkdown()` returns `false` | A `markdown.beforeGet` handler cancelled the read | Check the return type before using it |
-| `setMarkdown()` returns `null` and the editor is unchanged | Markdown mode is off, so the value was only stored | Turn Markdown mode on first (`markdown.toggle()`), or load HTML with `html.set()` |
+| `setMarkdown()` returns `null` and the editor is unchanged | Markdown mode is off, so the value was only stored | Turn Markdown mode on (`markdown.toggle()`), then call `setMarkdown()` again; or load HTML with `html.set()` |
 | Collaborators don't see each other | Different `docId`, or no reachable `syncUrl` | Share one `docId`; check the WebSocket connection |
 | Suggestions can't be made | Role is `viewer`, or an `editor` is still in editing mode | Switch mode with `collabMode`; give viewers the `suggester` role |
 
@@ -273,7 +275,7 @@ Requires 5.3.0+. Docs: https://froala.com/wysiwyg-editor/docs/plugins/collaborat
 ## Verify it works
 
 1. **Build:** the project builds; `track_changes.min.js` is imported if Track Changes is used, and mammoth, html-docx-js and FileSaver are installed or loaded before Froala for Word features.
-2. **Browser check, if you have a browser tool** (Playwright, Chrome MCP): load the page and confirm that each configured button renders once (`import_from_word`, `export_to_word`, `markdown`, `trackChanges`, `collabMode`…). Then exercise what the app uses: import a `.docx` and check that `editor.html.get()` contains its text; export and check that a `.docx` downloads; with markdown mode on (`markdown.toggle()`), `markdown.setMarkdown()` returns `true` and the visible editor changes (with it off, it returns `null` and only stores the text); with tracking on, an edit is listed by `track_changes.getPendingChanges()`; two browser contexts on the same `docId` see each other's typing. No console errors. Without a key, 5.6.0 logs its licence warning; that one is expected until the key is set.
+2. **Browser check, if you have a browser tool** (Playwright, Chrome MCP): load the page and confirm that each configured button renders once (`import_from_word`, `export_to_word`, `markdown`, `trackChanges`, `collabMode`…; count `button[data-cmd="…"]`, because dropdown options such as `collabMode`'s share the command name). Then exercise what the app uses: import a `.docx` and check that `editor.html.get()` contains its text; export and check that a `.docx` downloads; with markdown mode on (`markdown.toggle()`), `markdown.setMarkdown()` returns `true` and the visible editor changes (with it off, it returns `null` and only stores the text); with tracking on, an edit is listed by `track_changes.getPendingChanges()`; two browser contexts on the same `docId` see each other's typing. No console errors. Without a key, 5.6.0 logs its licence warning; that one is expected until the key is set.
 3. **Otherwise, ask the user** to confirm those outcomes for the features they use, including that an exported file opens in Microsoft Word and that a collaborative document reloads with its saved content.
 
 ## Reference
