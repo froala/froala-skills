@@ -1,5 +1,36 @@
 # Changelog
 
+## 1.2.0 — 2026-11-20
+
+Hardening and agent-DX release. Still verified against `froala-editor` 5.6.0.
+
+### Added
+
+- **Behavioural evals** (`evals/`, 11 cases) for [`claude plugin eval`](https://code.claude.com/docs/en/plugin-evals): React + Vite setup, the license `key` option, `html.insert()` not updating `v-model`, a custom toolbar button, the image upload response, images lost after reload (`blob:` URLs), the 5.6.0 "Powered by Froala" paragraph in saved HTML, Angular `FormControl.disable()`, a pasted v2 jQuery snippet, a TinyMCE config to convert, and an old Froala 3 project. Each case runs with and without the skills. On-demand **Skill evals** workflow.
+- **"Verify it works" section** in every skill: build, then check in a browser (toolbar renders, `html.get()` returns the expected HTML, no console errors), otherwise ask the user to confirm specific results.
+- **initialization-and-sdks:** `references/stale-patterns.md` (wrong patterns AI assistants often suggest for Froala 5.x, each with the fix) and `references/security-and-accessibility.md` (server-side sanitising, the `DOMPurify` hook, paste options, upload checks, CSP, keyboard access, Accessibility Checker, RTL).
+- **migrate:** "Already on Froala?" guidance, so agents don't propose leaving Froala when the user asked to fix or upgrade it. `from-tinymce.md` now maps every option and button TinyMCE's own setup skill configures.
+- `references/skill-feedback.md` in every skill, pointing to the feedback form.
+- Plugin icon, `documentationUrl` and `supportUrl`; Cursor plugin manifests (`.cursor-plugin/`); README install steps for Copilot CLI, VS Code and Cursor.
+- `LICENSE` (MIT), which the manifests and skills already declared.
+
+### Changed
+
+- **error-diagnosis** (653 → 118 lines) is now a symptom index; details moved to `references/`. **initialization-and-sdks** (531 → 295 lines) keeps the core setup; per-framework guides moved to `references/<framework>.md`.
+- Every skill is self-contained: no links into other skills, so installing one skill on its own works. froala-upgrade has its own generated `plugin-names.md`.
+- Descriptions trimmed under 900 characters, with "rich text editor" / "WYSIWYG" for directory search. Removed `initPopup`, `showPopup` and `hidePopup` from the custom-plugins triggers (local example names, not Froala APIs).
+- froala.com docs links carry `utm_source=froala-skills&utm_medium=agent-skill&utm_content=<skill>`, so Froala can see which skills send readers to the docs.
+- **Validator:** CommonMark fence parsing (fences with an info string no longer break later checks), `module.method` pairs checked against each module's real methods, nested toolbar groups, any editor variable name, option objects with any name, Vue `:config`, `json`/`ts`/`vue`/`svelte` fences, cdnjs and `package.json` version pins, PascalCase names in inline code, frontmatter rules (name, description length and triggers, metadata), a 500-line SKILL.md budget, relative links, manifest/skill/CHANGELOG version sync and skill lists, per-category allowlist, `--fix-utm`, clean network errors, cache integrity, Windows `npm`. Negative tests use one fixture per mistake with exact expected errors, plus a fixture that must pass.
+- **CI:** Node 22, actions pinned to commit SHAs, job timeouts, manifest JSON check and `claude plugin validate --strict`.
+
+### Fixed
+
+- **migrate:** the Quill mapping used `events.blur()`, which doesn't exist; now `editor.el.blur()`.
+- **upgrade:** the v2→v3 events table mapped `$el.off()` to `editor.events.off()`, which doesn't exist (the `events` module has no `off`).
+- **upgrade:** links to `plugin-names.md` pointed into another skill and broke when froala-upgrade was installed alone.
+- **initialization-and-sdks:** dropped the claim that `htmlUntouched: true` turns cleaning off; the package shows it only skips normalisation.
+- README project tree and PLUGIN_DESCRIPTION intro now cover all nine skills.
+
 ## 1.1.0 — 2026-11-18
 
 Every skill re-checked against the published `froala-editor` 5.6.0 package (and 5.5.0, which the review started from) and its React, Vue, Angular and Svelte wrappers. Reviewed by an independent reviewer; all review findings below were reproduced before being applied.

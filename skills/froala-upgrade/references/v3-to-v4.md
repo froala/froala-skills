@@ -1,6 +1,6 @@
 # Froala 3.x → 4.x
 
-Sources: [Migrate from Version 2 to Version 4](https://froala.com/wysiwyg-editor/docs/migrate-from-version-2-to-version-4/) (its v4 sections), [Migrating from Froala V3 to V5](https://froala.com/wysiwyg-editor/docs/migrating-from-froala-3-to-froala-5/) (lists what each 4.x release added), the [changelog](https://froala.com/wysiwyg-editor/changelog/), and diffs of the npm packages `froala-editor` 3.2.7, 4.0.0, 4.5.2, 4.6.0, 4.7.0 and 4.7.1. The old `/docs/migrate-from-version-3-to-version-4/` URL now redirects to the v3 → v5 guide.
+Sources: [Migrate from Version 2 to Version 4](https://froala.com/wysiwyg-editor/docs/migrate-from-version-2-to-version-4/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-upgrade) (its v4 sections), [Migrating from Froala V3 to V5](https://froala.com/wysiwyg-editor/docs/migrating-from-froala-3-to-froala-5/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-upgrade) (lists what each 4.x release added), the [changelog](https://froala.com/wysiwyg-editor/changelog/), and diffs of the npm packages `froala-editor` 3.2.7, 4.0.0, 4.5.2, 4.6.0, 4.7.0 and 4.7.1. The old `/docs/migrate-from-version-3-to-version-4/` URL now redirects to the v3 → v5 guide.
 
 Going from 3.x straight to 5.x? Read this file, then `v4-to-v5.md`.
 

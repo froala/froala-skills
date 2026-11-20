@@ -40,6 +40,16 @@ Requires Node.js 22.20 or later. See the [skills CLI reference](https://github.c
 
 The skills then load as `froala:froala-initialization-and-sdks`, `froala:froala-methods-and-events`, and so on.
 
+### Plugin install in other agents
+
+The same repository is also a plugin for these agents (OpenAI Codex: use the skills install above):
+
+| Agent | Install | Manifest it reads |
+|---|---|---|
+| GitHub Copilot CLI | `copilot plugin marketplace add froala/froala-skills`, then `copilot plugin install froala@froala-skills` | `.claude-plugin/marketplace.json` and `plugin.json` ([docs](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing)) |
+| VS Code (agent plugins, experimental) | Add `froala/froala-skills` to the `chat.plugins.marketplaces` setting, or run **Chat: Install Plugin from Source** | `plugin.json` / `.claude-plugin/plugin.json` ([docs](https://code.visualstudio.com/docs/copilot/customization/agent-plugins)) |
+| Cursor | **Customize → From GitHub Repository** → `froala/froala-skills` | `.cursor-plugin/` ([docs](https://cursor.com/docs/plugins)) |
+
 ### Manual install, per agent
 
 Copy each `skills/<name>/` folder you want (the folder, not just `SKILL.md`, because some skills have a `references/` folder) into your agent's skills directory:
@@ -302,47 +312,43 @@ Froala has a rich but sprawling API. Developers repeatedly hit the same problems
 
 ---
 
+## How the skills are kept accurate
+
+- **Package-checked identifiers.** `scripts/validate-skills.mjs` checks every option, event, method (as `module.method` pairs), button, plugin name, command and file path in the skills against the published `froala-editor` package, plus frontmatter, links, line budgets and manifest versions. CI runs it on every PR and weekly against the latest Froala release.
+- **Negative tests.** `tests/run-negative-tests.mjs` feeds the validator deliberately broken skills and checks it reports each mistake.
+- **Behavioural evals.** `evals/` holds [`claude plugin eval`](https://code.claude.com/docs/en/plugin-evals) cases: real developer prompts, graded on the code the agent writes, each run with and without the skills so the improvement is measured. Run them with `claude plugin eval .` or the **Skill evals** workflow.
+
+---
+
 ## Project Structure
 
 ```
 froala-skills/
 ├── .claude-plugin/
-│   ├── plugin.json         # Plugin metadata
-│   └── marketplace.json    # Marketplace entry (local + remote install)
+│   ├── plugin.json         # Claude Code plugin manifest (icon, links)
+│   └── marketplace.json    # Marketplace entry (also read by Copilot CLI)
+├── .cursor-plugin/         # Cursor plugin + marketplace manifests
+├── assets/icon.png         # Plugin icon
 ├── skills/
-│   ├── froala-initialization-and-sdks/
-│   │   ├── SKILL.md
-│   │   └── references/plugin-names.md   # generated from the package
-│   ├── froala-methods-and-events/
-│   │   └── SKILL.md
-│   ├── froala-custom-plugins/
-│   │   └── SKILL.md
-│   ├── froala-filestack-integration/
-│   │   └── SKILL.md
-│   ├── froala-ai-assist/
-│   │   └── SKILL.md
-│   ├── froala-document-features/
-│   │   └── SKILL.md
-│   ├── froala-migrate/
-│   │   ├── SKILL.md
-│   │   └── references/          # detection, per-editor mappings, content conversion, plan template
-│   ├── froala-upgrade/
-│   │   ├── SKILL.md
-│   │   └── references/          # per-version breaking changes, wrappers
-│   └── froala-error-diagnosis/
+│   └── <skill-name>/
 │       ├── SKILL.md
-│       └── references/plugin-names.md   # generated from the package
+│       └── references/     # loaded on demand: per-framework guides, generated
+│                           # plugin-names.md, skill-feedback.md, …
+├── evals/                  # claude plugin eval cases (results/ is git-ignored)
 ├── scripts/
-│   └── validate-skills.mjs # Checks skills against the published froala-editor package
-├── .github/
-│   ├── workflows/validate-skills.yml  # Runs the checks on every PR and weekly
-│   └── ISSUE_TEMPLATE/                 # Skill feedback form
+│   ├── validate-skills.mjs     # Checks skills against the published froala-editor package
+│   └── validate-allowlist.json # Non-Froala names the validator accepts, with reasons
 ├── tests/
-│   ├── fixtures/           # Deliberately broken examples
+│   ├── fixtures/           # Deliberately broken (and one valid) skill sets
 │   └── run-negative-tests.mjs
-├── plugin.json             # Cross-agent plugin manifest (agent-plugins.org)
+├── .github/
+│   ├── workflows/validate-skills.yml  # Validator, tests and plugin validation on every PR, weekly
+│   ├── workflows/evals.yml            # Behavioural evals, on demand
+│   └── ISSUE_TEMPLATE/                # Skill feedback form
+├── plugin.json             # Cross-agent manifest (agent-plugins.org; Codex, Copilot, VS Code)
 ├── skills.sh.json          # Grouping metadata for the skills.sh directory
 ├── CHANGELOG.md
+├── LICENSE
 ├── PLUGIN_DESCRIPTION.md
 └── README.md
 ```
@@ -357,4 +363,4 @@ If an agent gave a wrong or outdated Froala answer while using these skills, [op
 
 ## License
 
-MIT
+[MIT](LICENSE)

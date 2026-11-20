@@ -18,7 +18,7 @@ uses today and what it will use with Froala. No opinions about either product.
 | … | … | Mapped / Mapped with differences / Custom work / No equivalent (agreed workaround) |
 
 ## Custom work
-Features the project uses that will be built as Froala custom plugins or commands (`froala-custom-plugins`): what each does today, who uses it, and how it will be built. Content these features produce is kept unchanged.
+Features the project uses that will be built as Froala custom plugins or commands ([Custom plugin](https://froala.com/wysiwyg-editor/docs/concepts/custom/plugin/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate), [Custom button](https://froala.com/wysiwyg-editor/docs/concepts/custom/button/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate)): what each does today, who uses it, and how it will be built. Content these features produce is kept unchanged.
 
 ## Mapped with differences
 For each item: what changes for users or developers.

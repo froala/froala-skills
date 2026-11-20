@@ -2,7 +2,7 @@
 
 Identifiers checked against `quill` 2.0.3 (and the wrappers `react-quill-new` 3.8.3, `ngx-quill` 30.1.3).
 Froala names checked against `froala-editor` 5.6.0.
-Official Froala guide: https://froala.com/wysiwyg-editor/docs/migration-guides/quill-to-froala/
+Official Froala guide: https://froala.com/wysiwyg-editor/docs/migration-guides/quill-to-froala/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate
 
 <!-- validate:skip -->
 ## First: what does the app store?
@@ -33,7 +33,7 @@ Official Froala guide: https://froala.com/wysiwyg-editor/docs/migration-guides/q
 | `clean` | `clearFormatting` | |
 | `modules.history` | `undo`, `redo` | |
 | `modules.syntax` | `codeSnippet` | Froala 5.0+ |
-| `modules.toolbar` handlers (custom buttons) | Custom commands (`froala-custom-plugins`) | |
+| `modules.toolbar` handlers (custom buttons) | Custom commands ([Custom button](https://froala.com/wysiwyg-editor/docs/concepts/custom/button/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate)) | |
 | Image upload through a custom toolbar `image` handler | `imageUploadURL` | Quill has no built-in upload: see the app's handler and point Froala at the same endpoint |
 
 ## API and events
@@ -46,7 +46,7 @@ Official Froala guide: https://froala.com/wysiwyg-editor/docs/migration-guides/q
 | `quill.getText()` | `editor.el.textContent` | |
 | `quill.on('text-change', …)` | `contentChanged` event | |
 | `quill.enable(false)` / `quill.enable(true)` | `edit.off()` / `edit.on()` | |
-| `quill.focus()` / `quill.blur()` | `events.focus()` / `events.blur()` | |
+| `quill.focus()` / `quill.blur()` | `events.focus()` / `editor.el.blur()` | Froala has no `events.blur()`; blur the editable element (`editor.el`) directly |
 
 ## Classes to convert or style
 

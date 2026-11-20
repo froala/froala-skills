@@ -1,6 +1,6 @@
 # Froala 4.x → 5.x (and 3.x → 5.x)
 
-Sources: [Migrating from Froala V4 to Froala V5](https://froala.com/wysiwyg-editor/docs/migrating-from-froala-4-to-froala-5/), [Migrating from Froala V3 to Froala V5](https://froala.com/wysiwyg-editor/docs/migrating-from-froala-3-to-froala-5/), the [changelog](https://froala.com/wysiwyg-editor/changelog/), and diffs of the npm packages `froala-editor` 4.7.1, 5.0.0 and 5.6.0.
+Sources: [Migrating from Froala V4 to Froala V5](https://froala.com/wysiwyg-editor/docs/migrating-from-froala-4-to-froala-5/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-upgrade), [Migrating from Froala V3 to Froala V5](https://froala.com/wysiwyg-editor/docs/migrating-from-froala-3-to-froala-5/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-upgrade), the [changelog](https://froala.com/wysiwyg-editor/changelog/), and diffs of the npm packages `froala-editor` 4.7.1, 5.0.0 and 5.6.0.
 
 Coming from 3.x: also read `v3-to-v4.md`; everything 4.x added applies to you.
 

@@ -1,0 +1,14 @@
+body:
+  - type: dropdown
+    id: skill
+    attributes:
+      options:
+        - skill-a
+        - skill-b
+        - skill-x
+        - Not sure / no skill activated
+  - type: dropdown
+    id: agent
+    attributes:
+      options:
+        - other-thing

@@ -2,8 +2,9 @@
 
 The old editor's wrapper is replaced by Froala's official wrapper for the same framework. Keep the
 component's **external contract** (props / inputs, the value it emits, the form field name) so the rest
-of the app does not change. Install and set up Froala's wrapper as in `froala-initialization-and-sdks`
-(it covers Vite 8 import quirks, Angular standalone and `@defer`, SSR and TypeScript).
+of the app does not change. Install and set up Froala's wrapper following its README on npm and Froala's
+[framework guides](https://froala.com/wysiwyg-editor/docs/framework-plugins/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate); install `froala-editor` at the exact
+version the wrapper pins.
 
 ## Value binding and change events
 
@@ -29,7 +30,7 @@ in Vue, `[froalaView]` in Angular). They do not sanitize; keep the app's sanitiz
 ## Things that behave differently
 
 - **Config is read once.** Froala's React wrapper reads `config` when the editor starts. Define it outside the component (or memoize it); to change options later, use the editor API or re-mount.
-- **Content set from code.** `html.set()` / `html.insert()` through `getEditor()` do not reach `onModelChange` / `v-model:value` / `froalaModel` until `editor.undo.saveStep()` is called (see `froala-methods-and-events`).
+- **Content set from code.** `html.set()` / `html.insert()` through `getEditor()` do not reach `onModelChange` / `v-model:value` / `froalaModel` until `editor.undo.saveStep()` is called.
 - **First change event.** Up to `react-froala-wysiwyg` 5.5.0, `onModelChange` also fires once on load with unchanged content; 5.6.0 fires only on real changes. Don't mark a document dirty on that first call when on 5.5.0 or older.
 - **Form posts.** If the old editor posted a hidden `<textarea name="body">`, use `tag="textarea"` (React/Vue) or keep a form control with the same name, and test a real submit.
 - **SSR.** Froala needs the DOM. Render the editor on the client only, as the old wrapper probably did (`dynamic(..., { ssr: false })`, `<ClientOnly>`, Angular `@defer`).

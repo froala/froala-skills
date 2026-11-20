@@ -1,0 +1,16 @@
+{
+  "_comment": "Allowlist used by the validator tests only.",
+  "external": [
+    { "name": "onlyExternal", "reason": "test: a non-Froala name, valid in prose only" },
+    { "name": "TinyMCE", "reason": "test: product name in a description" },
+    { "name": "myPlugin", "reason": "test: example custom plugin name in prose" }
+  ],
+  "options": [{ "name": "importFromWordMammoth", "reason": "test: option category" }],
+  "events": [],
+  "buttons": [],
+  "plugins": [{ "name": "allowedPluginName", "reason": "test: plugin category" }],
+  "methods": [],
+  "intentionallyInvalid": [
+    { "name": "licenseKey", "reason": "test: wrong option name skills warn about" }
+  ]
+}
