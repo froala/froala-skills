@@ -1,12 +1,24 @@
 {
   "name": "froala",
-  "description": "Froala WYSIWYG editor plugin — get expert help with initialization, events, custom plugins, and Filestack integration.",
-  "version": "1.0.0",
+  "description": "Agent Skills for Froala WYSIWYG Editor: setup for every major framework, events and API, custom plugins, AI Assist, Word/Markdown/Track Changes/collaboration, Filestack uploads, error diagnosis, migration from other rich-text editors, and upgrades between Froala versions.",
+  "version": "1.1.0",
   "author": {
     "name": "Froala"
   },
   "homepage": "https://github.com/froala/froala-skills",
   "repository": "https://github.com/froala/froala-skills",
   "license": "MIT",
-  "keywords": ["froala", "wysiwyg", "editor", "rich-text", "filestack"]
+  "keywords": [
+    "froala",
+    "wysiwyg",
+    "editor",
+    "rich-text",
+    "filestack",
+    "ai-assist",
+    "track-changes",
+    "collaboration",
+    "markdown",
+    "word-import",
+    "migration"
+  ]
 }

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Froala documentation
+    url: https://froala.com/wysiwyg-editor/docs/
+    about: Options, events, methods and plugin reference for the Froala WYSIWYG editor.
+  - name: Froala support
+    url: https://froala.com/wysiwyg-editor/support/
+    about: Questions about the editor itself, licensing or your account. Use this rather than an issue here.
