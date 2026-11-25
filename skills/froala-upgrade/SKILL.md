@@ -15,7 +15,7 @@ license: MIT
 metadata:
   version: "1.2.0"
   verified_against: "froala-editor 5.6.0"
-  last_validated: "2026-11-20"
+  last_validated: "2026-11-25"
   sources_checked: "froala-editor 2.9.8, 3.2.7, 4.0.0, 4.5.2, 4.6.0, 4.6.2, 4.7.0, 4.7.1, 5.0.0-5.6.0 (npm packages); react/vue/angular-froala-wysiwyg 2.9.8, 3.2.7, 4.0.19, 4.1.0, 5.6.0; svelte-froala-wysiwyg 5.6.0; Froala migration guides and changelog"
 ---
 
@@ -30,7 +30,7 @@ Take a project from its installed Froala version to a newer one with the least r
 1. **Work on a branch.** Never upgrade on the default branch, and keep the lockfile change in the same commit as the code change.
 2. **Upgrade the core and the wrapper together.** `react-froala-wysiwyg`, `vue-froala-wysiwyg` (5.1.0+) and `angular-froala-wysiwyg` depend on one exact `froala-editor` version; `svelte-froala-wysiwyg` 5.6.0 uses `^5.6.0`. Two copies of `froala-editor` in `node_modules` make plugins and custom buttons register on one copy while the wrapper builds the editor from the other, so they silently disappear.
 3. **Use the same version everywhere.** Every CDN `<script>` and `<link>` for Froala uses one version. Write `froala-editor@VERSION` and replace `VERSION` with the target version.
-4. **Never rewrite stored content in place.** Compare `html.get()` output before and after on copies of real documents (step 6). Keep the originals.
+4. **Never rewrite stored content in place.** Compare `html.get()` output before and after on copies of real documents (step 7). Keep the originals.
 5. **Facts only.** Every change below comes from Froala's migration guides, changelog, or a diff of the published npm packages. If you meet a difference not listed here, check the [changelog](https://froala.com/wysiwyg-editor/changelog/) for the versions in between before guessing.
 
 ## Workflow
@@ -70,7 +70,14 @@ Write the list as a short checklist for the user (one line per change that affec
 - From 5.6.0, with no key or the trial key, `html.get()` appends `<p data-f-id="pbf">Powered by Froala Editor</p>` to the content and `localhost` shows the licence notice too. **Set a real key before anyone saves content with the upgraded editor**, or the paragraph is stored in every document saved.
 - The key goes in the `key` option (not `licenseKey`). Read it from an environment variable.
 
-### 4. Upgrade the packages
+### 4. Record a baseline and check custom CSS
+
+Before changing any version, record what the editor looks like and produces now, so you can prove the upgrade changed nothing by accident. Scripts and commands: `references/baseline-and-css-check.md`.
+
+1. **Baseline.** With a browser tool (Playwright, a Chrome MCP server or similar), load a page with a representative document on the **old** version and save a screenshot of the editor, `editor.html.get()` of that document, the list of rendered toolbar buttons (`.fr-toolbar .fr-btn[data-cmd]`) and the console errors. Without a browser tool, ask the user to record the same three things.
+2. **Custom CSS check.** Find every `.fr-*` class the project's own stylesheets use, and check that the new version's CSS files (`froala_editor.pkgd.min.css`, `froala_style.min.css`, plugin and theme CSS) still define it. Between 4.5.2 and 5.6.0, for example, `.fr-table-selector` and eight other classes were removed. Update each rule that targets a removed class.
+
+### 5. Upgrade the packages
 
 npm with a wrapper (React shown; same pattern for Vue and Angular):
 
@@ -82,14 +89,14 @@ Without a wrapper: `npm install --save-exact froala-editor@VERSION`. Then confir
 
 CDN or self-hosted: change the version in **every** Froala URL in the same commit (core JS, `pkgd` CSS, `froala_style.min.css`, each plugin, each language file, each third-party file). Self-hosted copies: replace the whole `js/` and `css/` folders, don't mix files from two versions.
 
-### 5. Update the code
+### 6. Update the code
 
 - Apply each item of the checklist from step 2.
 - Re-check `pluginsEnabled` / `pluginsDisabled`: newer plugins (Markdown, Track Changes, Import from Word, AI Assist, collaboration…) must be added there if you use `pluginsEnabled`, and their files loaded if you don't use a `pkgd` bundle. `track_changes` and `imageFilerobot` are not in either `pkgd` bundle in 5.6.0. Plugin names, files and buttons: `references/plugin-names.md`.
 - **Projects that use the default toolbar** (no `toolbarButtons`) get every new button whose plugin is loaded: 5.6.0's default toolbar includes AI Assist, AI Chat, collaboration, Track Changes, Markdown, Import/Export Word, code snippet, Paint Format and Accessibility Checker. To keep the old toolbar, set `toolbarButtons` explicitly and, with a `pkgd` bundle, `pluginsEnabled` to the plugins the app uses.
 - Custom plugins and buttons: on Froala 2 replace `$.FroalaEditor.` with `FroalaEditor.` and icons with SVG (`references/v2-to-v3.md`; Froala docs: [Custom plugin](https://froala.com/wysiwyg-editor/docs/concepts/custom/plugin/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-upgrade), [Custom button](https://froala.com/wysiwyg-editor/docs/concepts/custom/button/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-upgrade)). On 3+ they usually keep working unchanged.
 
-### 6. Verify that saved content round-trips
+### 7. Verify that saved content round-trips
 
 Do this before rolling out, on a copy of real stored documents (long ones, tables, images, lists, embeds, content pasted from Word):
 
@@ -112,11 +119,11 @@ const editor = new FroalaEditor('#roundtrip', {
 });
 ```
 
-### 7. Run the app
+### 8. Run the app
 
 Follow **Verify it works** below. TypeScript projects: `froala-editor` ships `index.d.ts` from 4.1.0, and the React wrapper's props are type-checked from 5.6.0, so new type errors can appear. "The license key for Froala Editor is missing" / "…is invalid" / "…expired" after the upgrade means the key did not reach the editor, does not cover the domain, or does not cover this release.
 
-### 8. Roll out
+### 9. Roll out
 
 Deploy to a staging environment first, with the production key. Keep the previous version deployable (the old lockfile on the main branch) until real users have saved content with the new editor without problems. Then summarize for the user: versions before and after, code changes, round-trip results, and anything left to decide.
 
@@ -133,17 +140,19 @@ Deploy to a staging environment first, with the production key. Keep the previou
 | Relying on the default toolbar | New AI, collaboration and other buttons appear after the upgrade | Set `toolbarButtons` and `pluginsEnabled` explicitly |
 | `pluginsEnabled` copied from an old version | New features (Markdown, Word import, AI Assist…) missing | Add their plugin names (see `references/plugin-names.md`) |
 | Vue 2 app updated to `vue-froala-wysiwyg` 4.1.0+ | Wrapper requires Vue 3 | Upgrade Vue first, or stay on `vue-froala-wysiwyg` 4.0.x |
-| Skipping the round-trip diff | Changed markup found only after users save | Step 6 |
+| Upgrading without checking the project's `.fr-*` CSS overrides | Custom styling silently stops applying | Step 4 CSS check; compare baseline screenshots |
+| Skipping the round-trip diff | Changed markup found only after users save | Step 7 |
 
 ## Verify it works
 
 1. **Build:** the project installs, builds and type-checks, and `npm ls froala-editor` shows one version: the target.
-2. **Browser check, if you have a browser tool** (Playwright, Chrome MCP): load the editor page and confirm that `FroalaEditor.VERSION` is the target version, the toolbar shows every button the app used before (and no unexpected new ones), typing, an image upload and a paste work, `editor.html.get()` returns the document without `data-f-id="pbf"` or `src="blob:`, and the console has no errors. Without a key, 5.6.0 logs its licence warning; that one is expected until the key is set.
-3. **Otherwise, ask the user** to confirm: the version printed by `FroalaEditor.VERSION` in the browser console, the toolbar matches the old one, an existing document opens and saves unchanged (step 6 diff), and no licence notice shows with the production key.
+2. **Browser check, if you have a browser tool** (Playwright, Chrome MCP): re-run the step 4 baseline against the upgraded app and compare (buttons gone or new, HTML differences, screenshots side by side). Also load the editor page and confirm that `FroalaEditor.VERSION` is the target version, the toolbar shows every button the app used before (and no unexpected new ones), typing, an image upload and a paste work, `editor.html.get()` returns the document without `data-f-id="pbf"` or `src="blob:`, and the console has no errors. Without a key, 5.6.0 logs its licence warning; that one is expected until the key is set.
+3. **Otherwise, ask the user** to repeat the step 4 baseline and compare, and to confirm: the version printed by `FroalaEditor.VERSION` in the browser console, the toolbar matches the old one, an existing document opens and saves unchanged (step 7 diff), and no licence notice shows with the production key.
 
 ## References
 
 - `references/plugin-names.md` — plugin names, files and toolbar buttons of the verified release (generated from the package)
+- `references/baseline-and-css-check.md` — baseline script (screenshot, `html.get()`, toolbar buttons) and the `.fr-*` CSS check, with their output on 4.5.2 → 5.6.0
 - `references/v2-to-v3.md` — Froala 2 (jQuery) to 3+: constructor, events, methods, toolbar, plugins, files
 - `references/v3-to-v4.md` — 3.x to 4.x
 - `references/v4-to-v5.md` — 4.x to 5.x, and 3.x straight to 5.x

@@ -1,20 +1,21 @@
 ---
 name: froala-error-diagnosis
 description: >
-  Use when a Froala editor is broken, throws, looks wrong, or a feature silently does nothing, even if
-  the user only describes the symptom. Activates on toolbar or button missing, button does nothing,
-  plugin not loading, editor not rendering, unstyled editor, FroalaEditor is not defined, is not a
-  constructor, Cannot read properties of undefined, Element is not defined, document is not defined,
-  Element type is invalid, NG2012, TS7016, bundle initial exceeded maximum budget, Angular CLI requires a
-  minimum Node.js version, Failed to resolve component: froala, images disappear after reload, upload
-  fails, No link in upload response, license key is missing or invalid, Powered by Froala Editor in
-  saved HTML, read-only not working, AI terms popup, Word import or export does nothing, or broke after
-  an update. NOT for first-time setup (froala-initialization-and-sdks).
+  Use when a Froala editor is broken, throws, looks wrong or silently does nothing, even from a symptom
+  alone. Activates on toolbar or button missing, button does nothing, plugin not loading, editor not
+  rendering or unstyled, FroalaEditor is not defined or not a constructor, Cannot read properties of
+  undefined, Element/document is not defined, Element type is invalid, NG2012, TS7016, "Duplicate
+  identifier 'LineHeight'", bundle initial exceeded maximum budget, Angular CLI requires a minimum
+  Node.js version, Failed to resolve component: froala, popup off-screen or behind a modal,
+  scrollableContainer, iOS Safari, images gone on reload, No link in upload response, license key is
+  missing or invalid, Powered by Froala Editor in saved HTML, read-only not working, AI terms popup, Word
+  import/export does nothing, or broke after an update. NOT for first-time setup
+  (froala-initialization-and-sdks).
 license: MIT
 metadata:
   version: "1.2.0"
   verified_against: "froala-editor 5.6.0"
-  last_validated: "2026-11-20"
+  last_validated: "2026-11-25"
 ---
 
 # Froala Error Diagnosis
@@ -60,6 +61,12 @@ Find the closest symptom, check the likely cause, then open the reference file f
 | Editor stays editable; Angular `FormControl.disable()` has no effect | No wrapper read-only prop; the Angular `setDisabledState` is empty | `editor.edit.off()` / `editor.edit.on()` | [licence-uploads-and-features.md](references/licence-uploads-and-features.md) |
 | AI buttons only show a terms popup | `aiSupplementalTermsAccepted` not set | `aiSupplementalTermsAccepted: true` | [licence-uploads-and-features.md](references/licence-uploads-and-features.md) |
 | Word import/export or the PDF button does nothing | mammoth, html-docx-js/FileSaver or html2pdf.js missing or loaded too late | Load the library before Froala | [licence-uploads-and-features.md](references/licence-uploads-and-features.md) |
+| Link/image popup detached from the text, or off-screen, when a panel scrolls | Popups are appended to `<body>` (`scrollableContainer` default) | `scrollableContainer: '#panel'` and `position: relative` on that panel | [positioning-and-mobile.md](references/positioning-and-mobile.md) |
+| Editor in a modal: popup invisible, or typing in it closes it and edits the document | Popup behind the modal, outside its focus trap | `scrollableContainer: '#myModal .modal-body'` | [positioning-and-mobile.md](references/positioning-and-mobile.md) |
+| Sticky toolbar hidden under a fixed header, or not sticking in a scrolling panel | `toolbarStickyOffset` is `0`; page scroll vs inner scroll | `toolbarStickyOffset: <header height>`; `scrollableContainer` | [positioning-and-mobile.md](references/positioning-and-mobile.md) |
+| Toolbar dropdown cut off; toolbar or popups behind other page elements | `overflow: hidden` parent; low `zIndex` | `toolbarContainer`; raise `zIndex` | [positioning-and-mobile.md](references/positioning-and-mobile.md) |
+| Toolbar too long on phones; iOS Safari quirks | Only `toolbarButtons` set; open iOS bugs | `toolbarButtonsXS`/`SM`/`MD`; check the known issues | [positioning-and-mobile.md](references/positioning-and-mobile.md) |
+| Bug that matches none of the above (popup offsets, iPad, typings) | May be a known open 5.6.0 issue | Check the dated list before inventing a workaround | [known-issues.md](references/known-issues.md) |
 | `ReferenceError: Element is not defined` / `document is not defined` (Next.js, Nuxt, SvelteKit, Angular SSR) | Froala imported during server rendering | Load the editor in the browser only (per-framework table) | [frameworks.md](references/frameworks.md) |
 | React + Vite 8: `Element type is invalid … but got: object` | `react-froala-wysiwyg` 5.5.0 or older | Upgrade to 5.6.0+, or unwrap `.default` | [frameworks.md](references/frameworks.md) |
 | React/Vue: content inserted from code missing from `model` / `v-model` | `html.set()`/`html.insert()` don't fire `contentChanged` | Call `editor.undo.saveStep()` after the change | [frameworks.md](references/frameworks.md) |
@@ -68,6 +75,7 @@ Find the closest symptom, check the likely cause, then open the reference file f
 | Angular: "bundle initial exceeded maximum budget" | Froala in the initial bundle | Show the editor inside `@defer` | [frameworks.md](references/frameworks.md) |
 | "The Angular CLI requires a minimum Node.js version" | Node.js outside the CLI's range | Ask before updating Node.js, or use an older CLI major | [frameworks.md](references/frameworks.md) |
 | TS7016 "Could not find a declaration file" | Plugin files and the Vue/Svelte wrappers ship no types | Add a `declare module` file | [frameworks.md](references/frameworks.md) |
+| TS2300 "Duplicate identifier 'LineHeight'" | froala-editor 4.5.0 typings | Upgrade to 4.5.1+, or `"skipLibCheck": true` in tsconfig | [frameworks.md](references/frameworks.md) |
 | On 5.5.0 or older and the symptom is a known bug | Fixed in 5.6.0 | Upgrade `froala-editor` and the wrapper together | [fixed-in-5.6.0.md](references/fixed-in-5.6.0.md) |
 
 ---

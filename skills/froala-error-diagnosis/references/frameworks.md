@@ -13,6 +13,7 @@ Part of the froala-error-diagnosis skill (verified against froala-editor 5.6.0).
 - Angular Build Fails: "bundle initial exceeded maximum budget"
 - Angular CLI: "requires a minimum Node.js version"
 - TypeScript: TS7016 "Could not find a declaration file"
+- TypeScript: TS2300 "Duplicate identifier 'LineHeight'"
 
 ## React: `Element type is invalid … but got: object`
 
@@ -133,3 +134,15 @@ declare module 'vue-froala-wysiwyg';
 declare module 'froala-editor/js/plugins/*';
 declare module 'froala-editor/js/plugins.pkgd.min.js';
 ```
+
+Where the types are: `froala-editor` declares `"types": "index.d.ts"` in its `package.json` (in the package root). The plugin files have no module declarations of their own. In 5.6.0, a side-effect import such as `import 'froala-editor/js/plugins/image.min.js'` compiles without a declaration; a dynamic `import('froala-editor/js/plugins.pkgd.min.js')` fails with TS7016 until the `declare module` line above is added (open issue #5010, see `known-issues.md`).
+
+---
+
+## TypeScript: TS2300 "Duplicate identifier 'LineHeight'"
+
+**Symptom:** `tsc` reports `node_modules/froala-editor/index.d.ts: error TS2300: Duplicate identifier 'LineHeight'` twice.
+
+**Cause:** froala-editor **4.5.0** declares both `type LineHeight` and `interface LineHeight` in `index.d.ts` (GitHub issue #4879, still open). From 4.5.1 the type is named `LineHeightObj`, and `tsc` compiles cleanly against 4.5.1, 4.5.2 and 5.6.0.
+
+**Fix:** upgrade `froala-editor` (and the wrapper) to 4.5.1 or later. If the project must stay on 4.5.0, `"skipLibCheck": true` in `tsconfig.json` hides the error (checked with `tsc`).

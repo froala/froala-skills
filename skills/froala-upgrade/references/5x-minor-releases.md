@@ -57,7 +57,7 @@ If the user wants a feature, the target version must be at least the one in this
 - **Security:** XSS fixes in the Word Export plugin. A reason to upgrade any project that uses `exportToWord`.
 - React wrapper: under StrictMode `initialized` no longer runs three times; `onModelChange` no longer fires when the editor loads (only on real changes); passing the editor's own value back into `model` no longer clears undo history; props and editor options are type-checked (new TypeScript errors can surface); `initialize()` / `destroy()` work on a ref; a Vite 8 app no longer gets a blank page with the default import. Code that relied on the load-time `onModelChange` must change.
 - Angular wrapper: after a Reactive Forms reset the first edit updates the form value; popups show above Angular Material v21 dialogs.
-- New default toolbar buttons `paintFormat` and `accessibilityChecker` (see SKILL.md step 5).
+- New default toolbar buttons `paintFormat` and `accessibilityChecker` (see SKILL.md step 6).
 
 ## Patch releases
 

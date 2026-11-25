@@ -56,4 +56,4 @@ React, Vue and Angular wrappers have the same version numbers as `froala-editor`
 3. Load new plugin files / add plugin names if the project uses `pluginsEnabled` or a non-`pkgd` build.
 4. Decide on table border defaults and the default toolbar.
 5. Read `5x-minor-releases.md` for the target version, especially 5.6.0's licence behaviour.
-6. Run the round-trip diff (SKILL.md step 6).
+6. Run the round-trip diff (SKILL.md step 7).
