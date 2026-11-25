@@ -50,7 +50,7 @@ Options: `fieldname` (default `'file'`), `validation` (a dict with `allowedExts`
 - **Validation trusts the client:** `mimetype` comes from the request (`request.files[...].content_type`) and the extension from the client's file name (run: `isFileValid('evil.png', 'image/png', ...)` returns `True` without reading the file). SVG is allowed by default.
 - **No size limit**; set Flask's `MAX_CONTENT_LENGTH` or Django's upload limits and check the size in a validation function.
 - **`delete(src)` concatenates `src`** onto the server path. Validate it first.
-- `S3.getHash` reads `config['region']` and builds the policy exactly like the Node SDK (verified output shape).
+- `S3.getHash` reads `config['region']` and builds the same policy conditions and output shape as the Node SDK (the policy bytes differ only because `json.dumps` adds spaces).
 
 <!-- validate:end -->
 

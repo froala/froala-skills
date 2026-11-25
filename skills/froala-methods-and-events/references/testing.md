@@ -14,7 +14,7 @@ Part of the froala-methods-and-events skill (verified against froala-editor 5.6.
 
 ## What to know first
 
-- **Use a real browser.** Froala needs real layout and selection. In jsdom (29.1.1, tested directly) 5.6.0 never initialized: its deferred setup threw `TypeError: Cannot read properties of undefined (reading 'split')`, `initialized` never fired and `editor.html` stayed `undefined`.
+- **Use a real browser.** Froala needs real layout and selection. In jsdom (29.1.1 and 31.0.1, tested directly) 5.6.0 never initialized: its deferred setup threw `TypeError: Cannot read properties of undefined (reading 'split')`, `initialized` never fired and `editor.html` stayed `undefined`.
 - **Wait for `initialized`.** The constructor returns at once and builds the editor asynchronously; `editor.html` doesn't exist until `initialized`. Wait for a signal the app sets in that event, not for a fixed timeout.
 - **The editable area is `.fr-element`** (a `contenteditable` element; in iframe mode it is the iframe's `<body>`, see froala-initialization-and-sdks). Toolbar buttons are `.fr-toolbar button[data-cmd="<command>"]`.
 - **`FroalaEditor` is only a global when the editor is loaded with a `<script>` tag.** The package is UMD: under Vite, webpack or another bundler it is a module export, so `window.FroalaEditor` (and `FroalaEditor.INSTANCES`) don't exist in the test page. Expose the instance yourself (next section).

@@ -81,21 +81,21 @@ The response text is passed to `image.uploaded` (string, before parsing). Return
 | `image.inserted` | `$img`, response | After the image loads |
 | `image.replaced` | `$img`, response, old `src` | Old `src` since 5.5 |
 | `image.uploadedToS3` | `link`, `key`, response XML | Return `false` to stop the insert |
-| `image.uploadedToAzure` | blob URL **including the SAS token**, `link`, response | Don't log or store the first argument |
+| `image.uploadedToAzure` | blob URL **including the SAS token**, `undefined` (the SharedKey signature when `accessKey` is used), response | Don't log or store the first argument. The inserted `src` is the URL without the SAS |
 | `image.error` | `{ code, message }`, response, `$img` | |
-| `file.beforeUpload`, `file.uploaded`, `file.inserted`, `file.uploadedToS3`, `file.uploadedToAzure`, `file.error` | as for images | `file.inserted` gets the `<a>` |
-| `video.beforeUpload`, `video.uploaded`, `video.inserted`, `video.replaced`, `video.uploadedToS3`, `video.uploadedToAzure`, `video.error` | as for images | |
+| `file.beforeUpload`, `file.uploaded`, `file.inserted`, `file.uploadedToS3`, `file.uploadedToAzure`, `file.error` | as for images, except: `file.beforeUpload(files)`, `file.inserted($a, response)`, `file.error(error, response)` | No `$img` argument |
+| `video.beforeUpload`, `video.uploaded`, `video.inserted`, `video.replaced`, `video.uploadedToS3`, `video.uploadedToAzure`, `video.error` | as for images, except: `video.beforeUpload(files)`, `video.error(error, response)` | |
 
 Deletion events (`image.beforeRemove`, `image.removed`, `file.unlink`, `video.beforeRemove`, `video.removed`) are in deleting-and-image-manager.md.
 
 ## Error codes
 
-`image.error`, `file.error` and `video.error` use the same numbers:
+`image.error`, `file.error` and `video.error` use the same numbers (the messages below are the image plugin's; file and video say "File" / "Video" instead of "Image"):
 
 | Code | Message | Cause |
 |---|---|---|
-| 1 | "Image cannot be loaded from the passed link." | The returned `link` does not load (for example 404) |
-| 2 | "No link in upload response." | 2xx without `link` (also a 2xx JSON string such as `"error"`) |
+| 1 | "Image cannot be loaded from the passed link." | The returned `link` does not load (for example 404). Also a 2xx JSON string such as `"error"`: `"error".link` is `String.prototype.link`, so it is not caught as code 2 |
+| 2 | "No link in upload response." | 2xx JSON object without `link` (for example `{}`) |
 | 3 | "Error during file upload." | Non-2xx status from your server |
 | 4 | "Parsing response failed." | Not JSON; the request failed (network, CORS); or S3/Azure answered with anything other than 201 |
 | 5 | "File is too large." | Over `imageMaxSize` / `fileMaxSize` / `videoMaxSize` |
@@ -104,8 +104,8 @@ Deletion events (`image.beforeRemove`, `image.removed`, `file.unlink`, `video.be
 ## Behaviour worth knowing
 
 - **No target:** without `imageUploadURL`, `imageUploadToS3` or `imageUploadToAzure`, images are inserted as `blob:` URLs (SVG as a data URI). Files and videos also get `blob:` URLs.
-- **Upload starts after a local preview.** The editor first shows the image from a `blob:` URL with the `fr-uploading` class, then swaps in `link`. A file whose bytes are not a decodable image never starts uploading and fires no event.
-- **`.docx` and Import from Word:** when the Import from Word plugin is loaded and `importFromWordEnableImportOnDrop` is `true` (the default), it registers a `file.beforeUpload` handler that imports any single `.docx` into the editor and cancels the upload. No `file.*` event reaches your handlers. Set `importFromWordEnableImportOnDrop: false` to upload `.docx` files.
+- **Upload starts after a local preview.** The editor first shows the image from a `blob:` URL with the `fr-uploading` class, then swaps in `link`. The preview's `error` also starts the upload, so a file whose bytes are not an image (a text file named `x.png` with type `image/png`) is still sent to your server: reject it there.
+- **`.docx` and Import from Word:** when the Import from Word plugin is loaded and `importFromWordEnableImportOnDrop` is `true` (the default), it registers (on desktop browsers, not mobile) a `file.beforeUpload` handler that imports any single `.docx` into the editor and cancels the upload. No `file.*` event reaches your handlers. Set `importFromWordEnableImportOnDrop: false` to upload `.docx` files.
 - **Renaming before upload** (unique names, or names without personal data): return `false` from `image.beforeUpload` and call `this.image.upload([new File([file], newName, { type: file.type })])`, guarding against re-entry. Tested with Azure in s3-and-azure.md.
 
 Docs: https://froala.com/wysiwyg-editor/docs/concepts/image/upload/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-uploads-and-storage, https://froala.com/wysiwyg-editor/docs/options/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-uploads-and-storage, https://froala.com/wysiwyg-editor/docs/events/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-uploads-and-storage

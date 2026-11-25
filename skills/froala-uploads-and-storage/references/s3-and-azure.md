@@ -31,7 +31,7 @@ The editor reads these options at each upload, so you can replace `editor.opts.i
 
 **The AWS secret key stays on the server.** The browser only gets a policy that is valid for a few minutes and only for keys under `keyStart`.
 
-Official SDKs (5.6.0): Node `S3.getHash(config)` (5-minute policy), Python `S3.getHash` (5 minutes), Java `S3.getHash(S3Config)` (5 minutes), .NET `S3.GetHash(S3Config)` (5 minutes, see the time-zone bug), PHP `S3::getHash` (10 hours, returns JSON text), Ruby `S3.data_hash` (10 hours). Node's returns:
+Official SDKs (5.6.0): Node `S3.getHash(config)` (5-minute policy), Python `S3.getHash` (5 minutes), Java `S3.getHash(S3Config)` (5 minutes, same time-zone bug as .NET), .NET `S3.GetHash(S3Config)` (5 minutes, see the time-zone bug), PHP `S3::getHash` (10 hours, returns JSON text), Ruby `S3.data_hash` (10 hours). Node's returns:
 
 ```json
 {
@@ -49,7 +49,7 @@ Official SDKs (5.6.0): Node `S3.getHash(config)` (5-minute policy), Python `S3.g
 }
 ```
 
-Its policy allows any size and any `Content-Type` under `keyStart`. The Node docs' sample computes the hash once at server start; the policy then expires 5 minutes later, so **compute it per request**.
+Its policy allows any size and any `Content-Type` under `keyStart`. The policy expires 5 minutes after `S3.getHash` runs, so **compute it per request** (as the docs' complete example does inside the route), never once at server start.
 
 A Node signer that uses the same algorithm (with the same inputs it produced a byte-identical policy and signature to the SDK's `S3.getHash`), and adds a size limit, an optional `acl` and the regional `uploadURL`:
 
@@ -139,12 +139,13 @@ Use an IAM user or role limited to `s3:PutObject` (and `s3:PutObjectAcl` if you 
 | `params` | Sent as request **headers** |
 | `accessKey` | **Never use.** Without `SASToken`, the editor signs the request in the browser with this storage account key (via the cryptojs plugin), exposing full account access |
 
-The editor sends `PUT` with the raw file as the body and headers `x-ms-blob-type: BlockBlob`, `x-ms-version: 2019-07-07`, `x-ms-date`, `Content-Type`, plus `imageUploadParams` and `requestHeaders` as headers. Azure must answer **201**. The editor then fires `image.uploadedToAzure(urlWithSas, link, response)` and inserts the URL **without** the SAS token, so readers need anonymous read access on the container (or a CDN in front). The first argument contains the SAS token: don't log or store it.
+The editor sends `PUT` with the raw file as the body and headers `x-ms-blob-type: BlockBlob`, `x-ms-version: 2019-07-07`, `x-ms-date`, `Content-Type`, plus `imageUploadParams` and `requestHeaders` as headers. Azure must answer **201**. The editor then fires `image.uploadedToAzure(urlWithSas, undefined, response)` (the second argument is the SharedKey signature only in `accessKey` mode; reproduced on 5.6.0, same for `file.` and `video.uploadedToAzure`) and inserts the URL **without** the SAS token, so readers need anonymous read access on the container (or a CDN in front). The first argument contains the SAS token: don't log or store it.
 
 **The blob name is the user's file name.** Two users uploading `image.png` overwrite each other. Re-submit the file under a unique name (tested):
 
 ```js
 const azure = await fetch('/api/uploads/azure-config', { credentials: 'same-origin' }).then((r) => r.json());
+const renamed = new WeakSet(); // files this handler created
 
 new FroalaEditor('#editor', {
   imageUploadToAzure: azure, // { account, container, SASToken: '?sv=...' }
@@ -152,9 +153,11 @@ new FroalaEditor('#editor', {
     // Froala names the blob after the user's file. Re-submit it under a unique name.
     'image.beforeUpload'(files) {
       const file = files[0];
-      if (file.name.startsWith('u-')) return true;
+      if (renamed.has(file)) return true; // a user file named like ours is still renamed
       const ext = (file.type.split('/')[1] || 'bin').replace('jpeg', 'jpg');
-      this.image.upload([new File([file], `u-${crypto.randomUUID()}.${ext}`, { type: file.type })]);
+      const unique = new File([file], `u-${crypto.randomUUID()}.${ext}`, { type: file.type });
+      renamed.add(unique);
+      this.image.upload([unique]); // crypto.randomUUID needs HTTPS or localhost
       return false;
     },
   },

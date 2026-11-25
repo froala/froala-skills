@@ -98,7 +98,7 @@ Write the endpoint yourself, or use an official SDK:
 **The SDKs are reference implementations, not hardened endpoints.** In all six 5.6.0 SDKs:
 
 - the delete helpers join the `src` they receive onto a disk path, so validate `src` before calling them (Ruby uses only the base name);
-- validation relies on the client's file name, and (Node, Python, Java, .NET, Ruby) on the client's `Content-Type`; Node stored a PHP script named `.png` and an SVG with an `onload` handler in testing;
+- validation relies on the client's file name, and (Node, Python, Java, .NET) on the client's `Content-Type` (Ruby's MIME check never runs); Node stored a PHP script named `.png` and an SVG with an `onload` handler in testing;
 - the default image extensions include `svg`, which can carry script when served from your domain;
 - the Node SDK sets no size limit and depends on `busboy` 0.2 (via `dicer`, advisory GHSA-wm7h-9275-46v2: a crafted request crashes the process).
 
@@ -140,7 +140,7 @@ Froala never deletes files on your server. It fires events you can act on:
 
 | Event | Fires when | Argument |
 |---|---|---|
-| `image.beforeRemove` | Before an image is removed with the toolbar, `editor.image.remove()` or Backspace. Return `false` to keep it. | `$img` |
+| `image.beforeRemove` | Before an image is removed with the toolbar, `editor.image.remove()`, or Backspace/Delete while the image is selected. Return `false` to keep it. Deleting a text selection that contains the image fires only `image.removed`. | `$img` |
 | `image.removed` | On the next `contentChanged`, for each image `src` that is gone | `$img` |
 | `image.replaced` | After an image is replaced. The 3rd argument is the old `src` (5.5+) | `$img`, response, old `src` |
 | `file.unlink` | On `contentChanged`, for each removed `a.fr-file` link | the `<a>` element |
@@ -155,7 +155,7 @@ Froala never deletes files on your server. It fires events you can act on:
 
 ## Image manager
 
-Set `imageManagerLoadURL` to your endpoint; **the default is Froala's demo server** (`https://i.froala.com/load-files`). It must return an array of `{ "url": ..., "thumb": ... }` (`url` required; `tag` optional; other keys become `data-*` attributes). Deleting sends a form-encoded `src=<url>` (plus `data-*` values and `imageManagerDeleteParams`) to `imageManagerDeleteURL` after the editor's own `confirm()`, and your endpoint must answer with **exactly 200**; 204 fires `imageManager.error` code 21. `imageManager.beforeDeleteImage` can return `false` to cancel. Details: [references/deleting-and-image-manager.md](references/deleting-and-image-manager.md).
+Set `imageManagerLoadURL` to your endpoint; **the default is Froala's demo server** (`https://i.froala.com/load-files`). It must return an array of `{ "url": ..., "thumb": ... }` (`url` required; `tag` optional; other keys become `data-*` attributes). Deleting sends a form-encoded `src=<thumb>` (the thumbnail's URL, or `url` when there is no `thumb`; the full URL is in `data-url`), plus the other `data-*` values and `imageManagerDeleteParams`, to `imageManagerDeleteURL` after the editor's own `confirm()`, and your endpoint must answer with **exactly 200**; 204 fires `imageManager.error` code 21. `imageManager.beforeDeleteImage` can return `false` to cancel. Details: [references/deleting-and-image-manager.md](references/deleting-and-image-manager.md).
 
 ## Security checklist
 

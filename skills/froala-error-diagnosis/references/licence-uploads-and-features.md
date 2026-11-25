@@ -62,7 +62,7 @@ Froala expects a specific JSON shape:
 { "link": "https://your-cdn.com/uploaded-image.jpg" }
 ```
 
-Any other shape fails the upload and fires `image.error` (`error.code` 2 = no `link` in the response, 3 = upload error such as an HTTP error status, 4 = the response is not valid JSON; 5 = file too large, 6 = type not allowed). Log it, and compare with the actual response in the Network tab:
+Any other shape fails the upload and fires `image.error` (`error.code` 2 = no `link` in the response, 3 = upload error such as an HTTP error status, 4 = the response is not valid JSON, or the request failed (network or CORS error; also a non-201 reply from S3 or Azure); 5 = file too large, 6 = type not allowed). Log it, and compare with the actual response in the Network tab:
 
 ```js
 events: {

@@ -57,7 +57,7 @@ If popups are still offset after this change, compare the layout with the open i
 **Causes, as observed:**
 
 1. The edit popup is appended to `<body>` with z-index `4`, behind the modal (Bootstrap's modal uses `1055`). It is there but cannot be seen or clicked.
-2. With a higher `zIndex` alone, the popup shows, but it is still outside the modal. Bootstrap's focus trap moves focus back into the modal as soon as the popup's input gets focus. The popup closes and the keystrokes go to the editor. In the test, select-all plus typing replaced the whole document.
+2. With a higher `zIndex` alone, the popup shows, but it is still outside the modal. Bootstrap's focus trap moves focus back into the modal as soon as the popup's input gets focus. The popup closes and the keystrokes go to the editor. In the test, select-all plus typing replaced the whole document. (With the AI Assist plugin loaded, as in both `pkgd` bundles, the trap first tries a non-focusable `<a class="fr-message">` in the AI menu, so focus happens to stay in the popup and typing works. Don't rely on that.)
 
 **Fix:** put the popups inside the modal with `scrollableContainer`. Use the element that scrolls: `.modal-body` for `modal-dialog-scrollable` dialogs (Bootstrap already gives `.modal-body` `position: relative`).
 
@@ -67,7 +67,7 @@ new FroalaEditor('#editor', {
 });
 ```
 
-Observed with this setting: the popup appears next to the link, typing a new URL works, and the popup follows the text when the modal body scrolls. Setting it to the modal element itself (`'#editModal'`) also showed the popup, but in a `modal-dialog-scrollable` dialog the popup stayed behind when the body scrolled (160 px off after a 150 px scroll).
+Observed with this setting: the popup appears next to the link, typing a new URL works, and the popup follows the text when the modal body scrolls. (When the sticky toolbar engages on the first scroll, the popup moves once by about the toolbar's height, from below the link to just above it, then stays with the link.) Setting it to the modal element itself (`'#editModal'`) also showed the popup, but in a `modal-dialog-scrollable` dialog the popup stayed behind when the body scrolled (160 px off after a 150 px scroll).
 
 **Alternative:** set `zIndex` above the modal (for example `2000`) **and** turn off Bootstrap's focus trap with `data-bs-focus="false"` on the modal. This worked in the test, but it removes the modal's keyboard focus handling, so prefer `scrollableContainer`.
 

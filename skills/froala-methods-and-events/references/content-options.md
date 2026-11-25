@@ -116,7 +116,7 @@ Observed after typing `one`, Enter, `two`, Shift+Enter, `three`:
 new FroalaEditor('#editor', { enter: FroalaEditor.ENTER_BR });
 ```
 
-- Use the constants, not strings. Observed: `enter: 'br'` produced `<undefined>one</undefined><br><undefined>two</undefined>`.
+- Use the constants, not strings. Observed: `enter: 'br'` produced `<undefined>one</undefined><br><undefined>two</undefined><br><undefined>three</undefined>`.
 - Shift+Enter inserted a `<br>` in every mode.
 - `enter` only affects typing. `html.set('<p>a</p><p>b</p>')` kept the `<p>` elements in all three modes (observed); convert existing content yourself if needed.
 - In `ENTER_BR` mode typed text is not wrapped in block elements. Block commands still create their own: `formatUL` on two lines gave `<ul><li>one</li><li>two</li></ul>` (observed).

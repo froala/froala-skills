@@ -61,7 +61,7 @@ Then `new FroalaEditor('#editor', { key: '…' })` in your page script. Language
 
 - The engine adds these to the Rails asset precompile list: `froala_editor.min.js`, `plugins/*.js`, `languages/*.js`, `froala_editor.min.css`, `froala_style.min.css`, `plugins/*.css`, `themes/*.css` (from `lib/wysiwyg-rails/engine.rb`). The gem also ships `froala_editor.pkgd.min.js` and `.css`, but they are **not** in that list: if you load them directly with a `<script>` tag, add them to that list yourself.
 - The engine relies on the Sprockets asset pipeline. A Rails 7+ app on importmap or jsbundling without Sprockets can install `froala-editor` from npm instead (main skill).
-- Uploads: write a controller that saves the file and renders `{ link: url }`. Froala also documents a Ruby SDK at https://froala.com/wysiwyg-editor/docs/sdks/ruby/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-initialization-and-sdks (not checked for this file).
+- Uploads: write a controller that saves the file and renders `{ link: url }`. Froala's Ruby SDK for server-side upload helpers is the separate gem `froala-editor-sdk` (5.6.0 on RubyGems): https://froala.com/wysiwyg-editor/docs/sdks/ruby/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-initialization-and-sdks (not run for this file).
 
 ## Django: `django-froala-editor`
 
@@ -99,12 +99,12 @@ Outside the admin, render `{{ form.media }}` in the template. The widget writes 
 
 What the source does (where it differs from the README, trust the source):
 
-- Settings read by the widget: `FROALA_EDITOR_OPTIONS` (merged under per-field `options`), `FROALA_EDITOR_PLUGINS`, `FROALA_EDITOR_THIRD_PARTY`, `FROALA_EDITOR_THEME`, `FROALA_UPLOAD_PATH`, `FROALA_STORAGE_BACKEND`, `FROALA_JS_COOKIE`, `USE_FROALA_EDITOR`. The README spells one of them `FRAOLA_EDITOR_THIRD_PARTY`; the code reads `FROALA_EDITOR_THIRD_PARTY`.
+- Settings read by the package (widget, model field and upload views): `FROALA_EDITOR_OPTIONS` (merged under per-field `options`), `FROALA_EDITOR_PLUGINS`, `FROALA_EDITOR_THIRD_PARTY`, `FROALA_EDITOR_THEME`, `FROALA_UPLOAD_PATH`, `FROALA_STORAGE_BACKEND`, `FROALA_JS_COOKIE`, `USE_FROALA_EDITOR`. The README spells one of them `FRAOLA_EDITOR_THIRD_PARTY`; the code reads `FROALA_EDITOR_THIRD_PARTY`.
 - Themes shipped: `dark`, `gray`, `royal` (the README's "red" does not exist).
 - The README's form example uses forms.TextField, which is not a Django form field; use forms.CharField (as above).
 - `FROALA_EDITOR_PLUGINS` is a list of **plugin file names** (each becomes `froala_editor/js/plugins/<name>.min.js`). The default list in 5.6.0 is 30 core plugins and leaves out newer ones such as Markdown, AI Assist, the Accessibility Checker, Paint Format and Word import/export. To use them, set the full list yourself, using the file names in `js/plugins/` (for example `markdown.min.js` → `'markdown'`).
 - The plugins argument of FroalaField sets the plugins; it cannot set third-party plugins (use the setting).
-- Uploads: the image and file upload views save with Django storage and return `{"link": …}`. They have **no authentication**, and the file view has no type check: anyone who can reach the URL can store files. Wrap them in your own views with Django's login_required decorator and your own checks, or leave `froala_editor.urls` out (uploads are then turned off: the widget sets `imageUpload: False`).
+- Uploads: the image and file upload views save with Django storage and return `{"link": …}`. They have **no authentication**, and the file view has no type check: anyone who can reach the URL can store files. Wrap them in your own views with Django's login_required decorator and your own checks, or leave `froala_editor.urls` out (uploads are then turned off: the widget sets `imageUpload: False` and `fileUpload: False`). The image view's only check is the MIME type the browser reports. The README's keyword arguments for turning image or file uploads off on FroalaField and FroalaEditor are accepted but never used by the 5.6.0 source, so they don't turn uploads off.
 
 ## PHP and Laravel: `froala/wysiwyg-editor-php-sdk`
 
@@ -129,7 +129,7 @@ try {
 }
 ```
 
-From the SDK source (`lib/FroalaEditor/Image.php`, `Utils/DiskManagement.php`): files are read from the `file` field, renamed to a random SHA-1 name, and `upload()` throws on a validation failure. The default image validation allows `svg`; an uploaded SVG can carry script, so pass your own `validation` (`['allowedExts' => […], 'allowedMimeTypes' => […]]`) without SVG unless you sanitise it. Other classes: `FroalaEditor\File`, `FroalaEditor\Video`, `FroalaEditor\S3` (signature for direct S3 uploads).
+From the SDK source (`lib/FroalaEditor/Image.php`, `Utils/DiskManagement.php`): files are read from the `file` field, renamed to the SHA-1 of the current time (`sha1(microtime())`, so names are guessable, not random), and `upload()` throws on a validation failure. The default image validation allows `svg`; an uploaded SVG can carry script, so pass your own `validation` (`['allowedExts' => […], 'allowedMimeTypes' => […]]`) without SVG unless you sanitise it. Other classes: `FroalaEditor\File`, `FroalaEditor\Video`, `FroalaEditor\S3` (signature for direct S3 uploads).
 
 In Laravel, a plain controller is enough: store `$request->file('file')` on a public disk and return `response()->json(['link' => $url])`. Protect the route with your auth middleware and include the CSRF token, for example with `imageUploadParams: { _token: '…' }` (the editor sends `imageUploadParams` with the upload). This Laravel code was not run for this file.
 

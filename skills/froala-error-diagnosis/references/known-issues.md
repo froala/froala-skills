@@ -14,7 +14,7 @@ Use this list to tell a user "this is a known bug" when their setup matches. Don
 | [#5049](https://github.com/froala/wysiwyg-editor/issues/5049) | With `toolbarSticky: true` and `scrollableContainer` in a flex layout, popups are offset by the width of the left sidebar and by the container's `scrollTop` | None confirmed |
 | [#5052](https://github.com/froala/wysiwyg-editor/issues/5052) | Popups get a negative `top` with a `position: relative` `scrollableContainer`; reported as introduced in 5.2.0 | None confirmed |
 | [#5059](https://github.com/froala/wysiwyg-editor/issues/5059) | With `toolbarInline: true`, the inline toolbar and popups appear about one page-scroll below the selection when `<body>` has `position: relative` (reported on 5.3.0) | None confirmed |
-| [#5072](https://github.com/froala/wysiwyg-editor/issues/5072) | Pressing Enter near the bottom of a custom `scrollableContainer` (with `toolbarSticky: true`) scrolls it nearly to the top | None confirmed |
+| [#5072](https://github.com/froala/wysiwyg-editor/issues/5072) | Pressing Enter in the middle of a line near the bottom of a custom `scrollableContainer` (with `toolbarSticky: true`) scrolls it nearly to the top; Enter at the end of a line does not (reported on 5.5.0) | None confirmed |
 | [#4936](https://github.com/froala/wysiwyg-editor/issues/4936) | The table popup is misplaced when the editor container has a scrollbar (reported on 4.3.1 and 4.5.2) | None confirmed |
 | [#4962](https://github.com/froala/wysiwyg-editor/issues/4962) | Sticky toolbar does not stick when `<body>` has `overflow: hidden` and a child element scrolls (Bootstrap layout) | Set `scrollableContainer` to the scrolling element; reproduced in `positioning-and-mobile.md` |
 

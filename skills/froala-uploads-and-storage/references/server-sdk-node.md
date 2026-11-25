@@ -52,7 +52,7 @@ Found by reading the 5.6.0 source and by uploading crafted files to it:
 - **Delete takes any path.** `Image.delete(req.body.src)` (as in the SDK example) unlinks `path.join(appDir, src)`, so `src=../../.env` deletes outside the uploads folder. Validate `src` first.
 - **The upload folder must exist**, and paths are relative to `require.main.filename`, which differs under some process managers and test runners.
 - **Names are `sha1(Date.now())`**: guessable, and two uploads in the same millisecond collide.
-- **Error responses in the SDK example** are `res.send(JSON.stringify(err))` with status 200. The editor reports code 2. Return a 4xx with JSON instead.
+- **Error responses in the SDK example:** the image and video routes reply `res.send(JSON.stringify(err))` with status 200, so the editor gets a JSON string and reports code 1 (not 2: `"...".link` is `String.prototype.link`); the file routes reply 404 (code 3). Return a 4xx with a JSON object instead.
 - **Dependencies:** `busboy` ~0.2.13 pulls `dicer` 0.2.5 (GHSA-wm7h-9275-46v2, high: a crafted multipart request crashes the process; no fix in 0.2). `crypto-js` 3.x (two critical advisories) is a dependency but unused by the upload code. `better-sqlite3` and `ws` are installed for the collaboration modules. `resize` needs ImageMagick installed.
 
 Use the SDK for prototypes. For production, use a maintained multipart parser and the rules below.
@@ -109,6 +109,7 @@ module.exports = function uploadRoutes({ requireUser, uploadDir, publicPath = '/
 
   // Delete: JSON from your own fetch() calls, form-encoded "src" from the image manager
   router.post('/api/uploads/delete', requireUser, express.json(), express.urlencoded({ extended: false }), async (req, res) => {
+    // The image manager sends the thumbnail URL as src (and the full URL as data-url); here they are the same file.
     const name = path.posix.basename(new URL(String(req.body.src || ''), 'http://localhost').pathname);
     if (!STORED_NAME.test(name)) return res.status(400).json({ error: 'Unknown file' });
     // Check in your database that req.user owns this file and no saved document still uses it.

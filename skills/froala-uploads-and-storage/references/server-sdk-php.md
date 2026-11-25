@@ -47,7 +47,7 @@ Options: `fieldname` (default `'file'`), `validation` (an array with `allowedExt
 - **SVG is allowed by default.** Remove it from `allowedExts` and `allowedMimeTypes` unless you sanitise SVGs.
 - **No size check.** PHP's `upload_max_filesize` and `post_max_size` are the only limits; add a size check in a validation closure.
 - **`delete($src)` concatenates `$src` onto the document root.** Accept only names your code generated (for example match `basename($src)` against a pattern) and check ownership.
-- **`S3::getHash`** needs a `timezone` key (it calls `date_default_timezone_set($config['timezone'])`), accepts an optional `conditions` array that is appended to the policy and also copied key by key into `params`, signs a policy that **expires after 10 hours**, and returns `region` in the `s3.<region>` form. Return the string as is:
+- **`S3::getHash`** needs a `timezone` key (it calls `date_default_timezone_set($config['timezone'])`; use `'UTC'`, because the credential date and the expiry, written with a `Z` suffix, are formatted in that zone), accepts an optional `conditions` array that is appended to the policy and also copied key by key into `params`, signs a policy that **expires after 10 hours**, and returns `region` in the `s3.<region>` form. Return the string as is:
 
 ```php
 <?php

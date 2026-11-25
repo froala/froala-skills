@@ -14,7 +14,7 @@ Part of the froala-uploads-and-storage skill. Event behaviour was reproduced wit
 
 | Event | Fires | Argument | Return `false` |
 |---|---|---|---|
-| `image.beforeRemove` | Before the image plugin removes an image (toolbar remove button, `editor.image.remove()`, Backspace on a selection containing it) | `$img` | Keeps the image |
+| `image.beforeRemove` | Before the image plugin removes an image (toolbar remove button, `editor.image.remove()`, Backspace/Delete while the image itself is selected). Not fired when Backspace deletes a text selection that contains the image; only `image.removed` fires then | `$img` | Keeps the image |
 | `image.removed` | On each `contentChanged`, for every `src` that was in the editor at the previous check and is gone now. Also fires after **redo** re-removes an image | `$img` (detached) | no effect |
 | `image.loaded` | On `contentChanged` for a `src` that appeared, including after **undo** restores a removed image | `$img` | |
 | `image.replaced` | After an image is replaced (upload over it, image manager). 5.5+ passes the old `src` third. `image.removed` does **not** fire for the old `src` | `$img`, response, old `src` | |
@@ -86,7 +86,7 @@ Tested: replacing an uploaded image deleted the old file; removing all images de
 
 ## Image manager contract
 
-Plugin `image_manager.min.js` (in the `pkgd` bundles). Opened with the `insertImage` popup's manager button or `editor.imageManager.show()`.
+Plugin `image_manager.min.js` (in the `pkgd` bundles). Opened with the `imageManager` button in the image insert popup (`imageInsertButtons`) or `editor.imageManager.show()`.
 
 | Option | 5.6.0 default | Notes |
 |---|---|---|
@@ -101,7 +101,7 @@ Plugin `image_manager.min.js` (in the `pkgd` bundles). Opened with the `insertIm
 
 **Load response:** status exactly 200 and a JSON array. Each item: `url` (required), `thumb` (recommended; shown in the grid), `tag` (optional, comma-separated tags for the filter), `name` (becomes the `alt`). Every other key becomes a `data-*` attribute on the thumbnail and on the inserted image: `{ "url": "/red.png", "thumb": "/red.png", "name": "Red", "id": "42" }` inserted `<img src="/red.png" data-id="42" data-name="Red" alt="Red" data-url="/red.png" ...>`.
 
-**Delete request:** after the editor's own `confirm()` ("Are you sure? Image will be deleted.") and `imageManager.beforeDeleteImage($img)` (return `false` to cancel), a request with `Content-Type: application/x-www-form-urlencoded` and body `src=<url>`, every `data-*` value (`data-url=...`) and `imageManagerDeleteParams`. The server must answer **200**; anything else (including 204) fires `imageManager.error` code 21 and keeps the thumbnail. On 200, `imageManager.imageDeleted(responseText)` fires.
+**Delete request:** after the editor's own `confirm()` ("Are you sure? Image will be deleted.") and `imageManager.beforeDeleteImage($img)` (return `false` to cancel), a request with `Content-Type: application/x-www-form-urlencoded` and a body built from the thumbnail `<img>`: `src=<thumb>` (the **thumbnail** URL; `url` only when the item has no `thumb`), every other attribute (`data-url=<url>`, `data-id`, `data-tag`, `alt` from `name`, ...) and `imageManagerDeleteParams`. Reproduced: `{ url: '/img/full.png', thumb: '/img/thumb.png', name: 'Red', id: '42' }` sent `src=/img/thumb.png&data-id=42&data-name=Red&alt=Red&data-url=/img/full.png&doc_id=42`. If thumbnails are separate files, delete by `data-url`, not `src`. The server must answer **200**; anything else (including 204) fires `imageManager.error` code 21 and keeps the thumbnail. On 200, `imageManager.imageDeleted(responseText)` fires.
 
 Both requests carry `requestHeaders`, `withCredentials` when `requestWithCredentials` is set, `Content-Type: application/x-www-form-urlencoded` (even on GET) and, with `requestWithCORS: true` (default), the request header `Access-Control-Allow-Origin: *`. Cross-origin, that header forces a preflight: the server must allow it in `Access-Control-Allow-Headers` (reproduced: a preflight asking for `access-control-allow-origin`), or set `requestWithCORS: false`. A CORS or network failure fires no `imageManager.error`; the manager just stays empty.
 
@@ -113,7 +113,7 @@ Tested client configuration:
 new FroalaEditor('#editor', {
   imageUploadURL: '/api/uploads/image',
   imageManagerLoadURL: '/api/uploads/images',   // the default is Froala's demo server
-  imageManagerDeleteURL: '/api/uploads/delete', // receives src=<url> (form-encoded POST)
+  imageManagerDeleteURL: '/api/uploads/delete', // receives src=<thumb> and data-url=<url> (form-encoded POST)
   imageManagerDeleteParams: { doc_id: '42' },
   events: {
     'imageManager.imageDeleted'(response) {

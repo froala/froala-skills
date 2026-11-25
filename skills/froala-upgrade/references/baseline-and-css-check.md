@@ -53,7 +53,7 @@ console.log(`${out}: Froala ${data.version}, ${data.buttons.length} buttons, htm
 node froala-baseline.mjs http://localhost:5173/editor-page baseline/before
 ```
 
-`version` is `null` in bundled apps; record the version from `node_modules/froala-editor/package.json` instead. `buttons` includes the buttons hidden inside the toolbar's "more" groups. If a login is needed to reach the page, ask the user for a test page or a URL that needs none; never ask for or store their password in the script.
+Load the page over `http://` or `https://`, not `file://`: in a 5.6.0 test with no key, `html.get()` included `<p data-f-id="pbf">` over HTTP but not from a `file://` URL, so a `file://` baseline hides the licence paragraph. `version` is `null` in bundled apps; record the version from `node_modules/froala-editor/package.json` instead. `buttons` includes the buttons hidden inside the toolbar's "more" groups. If a login is needed to reach the page, ask the user for a test page or a URL that needs none; never ask for or store their password in the script.
 
 ## Compare with the baseline (after the upgrade)
 

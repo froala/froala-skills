@@ -42,7 +42,7 @@ Know:
 
 - Validation uses the client's `ContentType` and file-name extension; the default image extensions include `svg`.
 - `S3.GetHash` builds the expiry from `DateTime.Now` (server local time) but writes it with a `Z` (UTC) suffix. On a server west of UTC the policy is already expired; run in UTC.
-- Dependencies pinned by the 5.6.0 package: `net471` uses `Magick.NET-Q16-AnyCPU` 7.10.2 (dozens of ImageMagick advisories); `netstandard2.0` uses `Newtonsoft.Json` 12.0.1 (GHSA-5crp-9r3c-p9vr, high) and `Microsoft.AspNetCore.*` 2.2.0 packages. Override them with newer versions in your project and test.
+- Dependencies pinned by the 5.6.0 package: `net471` uses `Magick.NET-Q16-AnyCPU` 7.10.2 (dozens of ImageMagick advisories); `netstandard2.0` uses `Magick.NET.Core-Q16` 7.10.2, `Newtonsoft.Json` 12.0.1 (GHSA-5crp-9r3c-p9vr, high) and `Microsoft.AspNetCore.*` 2.2.0 packages. Override them with newer versions in your project and test.
 
 ## Java: wysiwyg-editor-java-sdk
 
@@ -61,6 +61,8 @@ Know:
 - **It imports `javax.servlet`.** Jakarta EE 9+ containers and frameworks (Tomcat 10+, Spring Boot 3+) use `jakarta.servlet`, so the jar cannot be used there without rebuilding the source.
 - The servlet needs multipart enabled (`@MultipartConfig`) so `req.getPart("file")` works.
 - Validation uses the part's client `Content-Type` and the client extension. `S3.getHash` compares the region with `==` / `!=` on strings, so a region read at runtime (not a literal) gets `s3-us-east-1` instead of `s3`; set `uploadURL` on the client to avoid depending on it.
+- **Stored names collide.** `Utils.generateUniqueString()` hashes `Calendar.MILLISECOND` (the millisecond within the current second, 0–999), so there are only 1000 possible names per extension and later uploads overwrite earlier ones (source and compiled jar). Generate your own name.
+- `S3.getHash` formats the date and expiry with `SimpleDateFormat` in the server's local time zone but appends `Z`; run in UTC.
 - The bundled commons-io 2.5 has advisories (GHSA-gwrp-pvrq-jmwv, GHSA-78wr-2p64-hpwj); use a current commons-io.
 
 ## Ruby on Rails: froala-editor-sdk
@@ -80,14 +82,14 @@ end
 | `Image.upload(params, upload_path = 'public/uploads/images', options = {})` | Saves `Rails.root/upload_path/<random>.<client extension>`, returns a JSON **string** `{"link": file_access_path + name}`; returns `nil` if the field is missing; raises on failed validation |
 | `File.upload` (default path `public/uploads/files`), `Video.upload` (`public/uploads/videos`) | Same |
 | `File.delete(file, path)` | Deletes `Rails.root/path/File.basename(file)`; returns true/false. Only the base name is used, so `src` cannot leave `path` |
-| `Image.load_images(path, options = {})` | JSON string `[{url}]` for the image manager |
+| `Image.load_images(path, options = {})` | JSON string `[{url}]` for the image manager; lists every file matching `path*`, with no type filter |
 | `S3.data_hash(options)` | Hash for `imageUploadToS3` from `bucket`, `region`, `keyStart`, `acl`, `accessKey`, `secretKey`; policy expires after **10 hours** |
 
 Know:
 
 - **Pass `file_access_path` that matches `upload_path`.** The default `file_access_path` is `'/uploads/'`, but images are saved under `public/uploads/images`, so the default link (`/uploads/<name>`) points to a file that is not there (from the source).
 - **The MIME check never runs.** `Validation.check` evaluates `ext(...) && mime(...)`; `ext` returns `nil` when the extension is allowed, so `mime` is skipped. Run: an upload named `evil.png` with type `text/html` passed. Only the client's extension is checked.
-- Default file types include `.html` and `.json`, and images include `.svg`; uploaded HTML or SVG served from your domain can run script. Override `validation` with your own lambda `(path, mime)` that inspects the file.
+- Default file types include `.html` and `.json`, and images include `.svg`; uploaded HTML or SVG served from your domain can run script. Override `validation` with your own lambda `(path, mime)` that inspects the file and **raises** to reject it: `upload` ignores the lambda's return value, so returning `false` still saves the file (from the source).
 
 <!-- validate:end -->
 

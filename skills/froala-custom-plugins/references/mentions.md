@@ -1,6 +1,6 @@
 # @mentions with Tribute.js
 
-Part of the froala-custom-plugins skill (verified against froala-editor 5.6.0). Froala has no built-in plugin for @mentions in the content (the Collaboration plugin's `mentionableUsers` only covers comments; see froala-document-features). Its official example (https://froala.com/wysiwyg-editor/examples/tribute-js/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-custom-plugins) uses the Tribute.js library. The code below follows that example and was run in headless Chromium with froala-editor 5.6.0 and tributejs 3.5.3 (the version the example loads) and 5.1.3 (the latest on npm, published 2020); both behaved the same.
+Part of the froala-custom-plugins skill (verified against froala-editor 5.6.0). Froala has no built-in plugin for @mentions in the content (the Collaboration plugin's `collabConfig.mentionableUsers` only covers @mentions inside comments; see froala-document-features). Its official example (https://froala.com/wysiwyg-editor/examples/tribute-js/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-custom-plugins) uses the Tribute.js library. The code below follows that example and was run in headless Chromium with froala-editor 5.6.0 and tributejs 3.5.3 (the version the example loads) and 5.1.3 (the latest on npm, published 2020); both behaved the same.
 
 ## Contents
 
