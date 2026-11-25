@@ -46,7 +46,7 @@ const event = (e) => `Event "${e}" does not exist in ${V}`;
 const hardcoded = (v) => `Hard-coded "${v}". Use "@VERSION" (or VERSION) and tell the agent to use the installed version.`;
 const trigger = (t) => `Description trigger "${t}" was not found in ${V} or its wrappers. Triggers must be real Froala APIs (or add it to the allowlist with a reason).`;
 const utm = (url) => `Docs link needs utm_source=froala-skills&utm_medium=agent-skill&utm_content=utm (run --fix-utm): ${url}`;
-const mismatch = (where, v) => `Version mismatch: ${where} is ${v}, but most of the repo says 1.2.0. plugin.json, .claude-plugin/plugin.json, marketplace.json, every skill's metadata.version and the top CHANGELOG entry must match.`;
+const mismatch = (where, v) => `Version mismatch: ${where} is ${v}, but most of the repo says 1.2.0. plugin.json, .claude-plugin/plugin.json, .cursor-plugin/plugin.json, gemini-extension.json, marketplace.json, every skill's metadata.version and the top CHANGELOG entry must match.`;
 
 // Known-good pairs, allowlisted names in their own category, validate:skip, info strings, ~~~ fences,
 // grouped/object toolbars, Vue/JSX configs, custom plugins/commands/options, unrelated fetch/response objects.
@@ -206,6 +206,7 @@ expectExactly('allowlist categories: external names do not pass option/button/pl
 expectExactly('manifests: version sync and skill lists', ['--repo-root', path.join(FIX, 'manifests')], 'tests/fixtures/manifests/', [
   `E .claude-plugin/marketplace.json:1  ${mismatch('.claude-plugin/marketplace.json (plugin "froala")', '1.1.0')}`,
   `E skills/skill-b/SKILL.md:1  ${mismatch('skills/skill-b metadata.version', '1.1.0')}`,
+  `E gemini-extension.json:1  ${mismatch('gemini-extension.json', '1.1.0')}`,
   'E README.md  Skill "skill-b" is missing from the README skill list',
   'E README.md  the README skill list lists "skill-c", which is not a folder in skills/',
   'E skills.sh.json  Skill "skill-b" is missing from skills.sh.json groupings',

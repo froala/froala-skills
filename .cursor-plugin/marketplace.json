@@ -10,7 +10,7 @@
     {
       "name": "froala",
       "source": "./",
-      "description": "Agent Skills for Froala WYSIWYG Editor: setup for every major framework, events and API, custom plugins, AI Assist, Word/Markdown/Track Changes/collaboration, Filestack uploads, error diagnosis, migration from other rich-text editors, and upgrades between Froala versions."
+      "description": "Agent Skills for Froala WYSIWYG Editor: setup for every major framework, events and API, custom plugins, uploads and storage (server SDKs, S3, Azure), Filestack, AI Assist, Word/Markdown/Track Changes/collaboration, error diagnosis, migration from other rich-text editors, and upgrades between Froala versions."
     }
   ]
 }

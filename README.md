@@ -1,6 +1,6 @@
 # Froala Agent Skills
 
-Froala is a modern, framework-agnostic WYSIWYG rich text editor written in plain JavaScript (no jQuery since version 3). These portable [Agent Skills](https://agentskills.io/home) make an AI coding agent an expert on [Froala WYSIWYG editor](https://froala.com/wysiwyg-editor/) development — initialization, events, custom plugins, AI Assist, Word and Markdown workflows, Filestack uploads, and error diagnosis.
+Froala is a modern, framework-agnostic WYSIWYG rich text editor written in plain JavaScript (no jQuery since version 3). These portable [Agent Skills](https://agentskills.io/home) make an AI coding agent an expert on [Froala WYSIWYG editor](https://froala.com/wysiwyg-editor/) development — initialization, events, custom plugins, uploads and storage, AI Assist, Word and Markdown workflows, Filestack, and error diagnosis.
 
 > Checked against **froala-editor 5.6.0** (see `metadata.verified_against` in each `SKILL.md`). CI checks every pull request against that version, and a weekly job compares the skills with the latest Froala release. The validator checks names and structure (options, events, buttons, plugin names, method calls, frontmatter, versions); it cannot prove that an example behaves correctly at runtime.
 
@@ -94,6 +94,7 @@ Before writing or changing Froala editor code, read the matching guide and follo
 - Setup, frameworks, toolbar, license key: .agents/skills/froala-initialization-and-sdks/SKILL.md
 - Events, html.get/set, paste: .agents/skills/froala-methods-and-events/SKILL.md
 - Custom buttons and plugins: .agents/skills/froala-custom-plugins/SKILL.md
+- Upload endpoints, server SDKs, S3/Azure, image manager: .agents/skills/froala-uploads-and-storage/SKILL.md
 - Filestack uploads: .agents/skills/froala-filestack-integration/SKILL.md
 - AI Assist: .agents/skills/froala-ai-assist/SKILL.md
 - Word, Markdown, Track Changes, collaboration: .agents/skills/froala-document-features/SKILL.md
@@ -179,7 +180,21 @@ Covers:
 - SVG icon registration and shortcut key binding
 - Plugin loading order requirements
 
-**Trigger keywords:** `FroalaEditor.PLUGINS`, `RegisterCommand`, `DefineIcon`, `initPopup`, `showPopup`, `POPUP_TEMPLATES`
+**Trigger keywords:** `FroalaEditor.PLUGINS`, `RegisterCommand`, `DefineIcon`, `RegisterShortcut`, `popups.create`, `POPUP_TEMPLATES`, `events.bindClick`
+
+---
+
+### `froala-uploads-and-storage`
+
+**Activates when** you build or configure where the editor stores images, files and videos.
+
+- The upload request and the `{ "link": ... }` response, `imageUploadParams`, `requestHeaders`, size and type limits, and the `image.error` codes
+- The official server SDKs (Node, PHP, Python, .NET, Java, Ruby), with the checks they leave to you: they trust the client's file name and content type
+- Direct browser uploads to S3 (`imageUploadToS3`) and Azure Blob (`imageUploadToAzure`), signed on the server so the secret never reaches the browser
+- Deleting stored files on `image.removed` / `file.unlink` / `video.removed`, and why undo and `html.set()` make that unsafe without a save-time cleanup
+- Image manager load and delete endpoints
+
+**Trigger keywords:** `imageUploadURL`, `fileUploadURL`, `videoUploadURL`, `imageUploadToS3`, `imageUploadToAzure`, `requestHeaders`, `image.removed`, `file.unlink`, `imageManagerLoadURL`, `imageManagerDeleteURL`, `wysiwyg-editor-node-sdk`
 
 ---
 
@@ -202,7 +217,7 @@ Covers two approaches:
 - Applying Filestack CDN transformations (resize, format conversion) before insert
 - Common pitfalls (missing `return false`, arrow function `this` context loss, wrong Filestack JS version)
 
-**Trigger keywords:** `filestackOptions`, `filestackAPI`, `uploadToFilestackOnly`, `pickerOptions`, `filestack.uploadedToFilestack`, `filestack.filestackPickerOpened`, `image.beforeUpload`, `file.beforeUpload`, `imageUploadURL`, `fileUploadURL`, `filestackcontent.com`
+**Trigger keywords:** `filestackOptions`, `filestackAPI`, `uploadToFilestackOnly`, `pickerOptions`, `filestack.uploadedToFilestack`, `filestack.filestackPickerOpened`, `image.beforeUpload`, `file.beforeUpload`, `filestackcontent.com`
 
 ---
 
@@ -335,22 +350,28 @@ froala-skills/
 │   ├── plugin.json         # Claude Code plugin manifest (icon, links)
 │   └── marketplace.json    # Marketplace entry (also read by Copilot CLI)
 ├── .cursor-plugin/         # Cursor plugin + marketplace manifests
+├── gemini-extension.json   # Gemini CLI extension manifest
 ├── assets/icon.png         # Plugin icon
 ├── skills/
 │   └── <skill-name>/
 │       ├── SKILL.md
-│       └── references/     # loaded on demand: per-framework guides, generated
-│                           # plugin-names.md, skill-feedback.md, …
+│       ├── references/     # loaded on demand: per-framework guides, generated
+│       │                   # plugin-names.md, skill-feedback.md, …
+│       └── scripts/        # check-froala.mjs (generated; init, error-diagnosis, upgrade)
 ├── evals/                  # claude plugin eval cases (results/ is git-ignored)
 ├── scripts/
 │   ├── validate-skills.mjs     # Checks skills against the published froala-editor package
+│   ├── check-froala.mjs        # Source of the agent-run project checker copied into skills
+│   ├── build-discovery-index.mjs # Agent Skills Discovery index for releases
 │   └── validate-allowlist.json # Non-Froala names the validator accepts, with reasons
 ├── tests/
 │   ├── fixtures/           # Deliberately broken (and one valid) skill sets
-│   └── run-negative-tests.mjs
+│   ├── run-negative-tests.mjs
+│   └── check-froala.test.mjs
 ├── .github/
 │   ├── workflows/validate-skills.yml  # Validator, tests and plugin validation on every PR, weekly
 │   ├── workflows/evals.yml            # Behavioural evals, on demand
+│   ├── workflows/release.yml          # Attaches the discovery index to each release
 │   └── ISSUE_TEMPLATE/                # Skill feedback form
 ├── plugin.json             # Cross-agent manifest (agent-plugins.org; Codex, Copilot, VS Code)
 ├── skills.sh.json          # Grouping metadata for the skills.sh directory

@@ -18,6 +18,7 @@ body:
         - froala-initialization-and-sdks
         - froala-methods-and-events
         - froala-custom-plugins
+        - froala-uploads-and-storage
         - froala-filestack-integration
         - froala-ai-assist
         - froala-document-features
