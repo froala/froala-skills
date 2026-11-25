@@ -901,9 +901,10 @@ if (REPO_ROOT) {
     }
   };
   const versions = []; // [where, file, version]
-  for (const f of ['plugin.json', '.claude-plugin/plugin.json', '.cursor-plugin/plugin.json']) {
+  const OPTIONAL_MANIFESTS = new Set(['.cursor-plugin/plugin.json', 'gemini-extension.json']);
+  for (const f of ['plugin.json', '.claude-plugin/plugin.json', '.cursor-plugin/plugin.json', 'gemini-extension.json']) {
     const p = path.join(REPO_ROOT, f);
-    if (!fs.existsSync(p)) { if (f !== '.cursor-plugin/plugin.json') error(p, 0, 'Missing manifest'); continue; }
+    if (!fs.existsSync(p)) { if (!OPTIONAL_MANIFESTS.has(f)) error(p, 0, 'Missing manifest'); continue; }
     const j = readJson(p);
     if (j) versions.push([f, p, j.version]);
   }
@@ -926,7 +927,7 @@ if (REPO_ROOT) {
   for (const [, , v] of versions) counts.set(v, (counts.get(v) || 0) + 1);
   if (counts.size > 1) {
     const expected = [...counts].sort((a, b) => b[1] - a[1] || (older(semver(String(a[0])), semver(String(b[0]))) ? 1 : -1))[0][0];
-    for (const [where, file, v] of versions) if (v !== expected) error(file, 1, `Version mismatch: ${where} is ${v}, but most of the repo says ${expected}. plugin.json, .claude-plugin/plugin.json, marketplace.json, every skill's metadata.version and the top CHANGELOG entry must match.`);
+    for (const [where, file, v] of versions) if (v !== expected) error(file, 1, `Version mismatch: ${where} is ${v}, but most of the repo says ${expected}. plugin.json, .claude-plugin/plugin.json, .cursor-plugin/plugin.json, gemini-extension.json, marketplace.json, every skill's metadata.version and the top CHANGELOG entry must match.`);
   }
 
   const expected = new Set(skillDirs.filter((s) => fs.existsSync(path.join(SKILLS_DIR, s, 'SKILL.md'))));

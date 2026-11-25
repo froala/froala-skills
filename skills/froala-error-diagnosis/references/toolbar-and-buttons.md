@@ -81,7 +81,9 @@ toolbarButtons: {
   moreText: { buttons: ['bold', 'italic'] },
   // no moreRich group = insertImage never appears
 }
+```
 
+```js
 // CORRECT
 toolbarButtons: {
   moreText: { buttons: ['bold', 'italic'] },

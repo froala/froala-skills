@@ -42,10 +42,12 @@ The skills then load as `froala:froala-initialization-and-sdks`, `froala:froala-
 
 ### Plugin install in other agents
 
-The same repository is also a plugin for these agents (OpenAI Codex: use the skills install above):
+The same repository is also a plugin or extension for these agents:
 
 | Agent | Install | Manifest it reads |
 |---|---|---|
+| OpenAI Codex | `codex plugin marketplace add froala/froala-skills`, then `codex plugin add froala@froala-skills` | `.claude-plugin/marketplace.json` and `plugin.json` ([docs](https://developers.openai.com/codex/plugins)) |
+| Gemini CLI | `gemini extensions install https://github.com/froala/froala-skills` | `gemini-extension.json` ([docs](https://geminicli.com/docs/extensions/)) |
 | GitHub Copilot CLI | `copilot plugin marketplace add froala/froala-skills`, then `copilot plugin install froala@froala-skills` | `.claude-plugin/marketplace.json` and `plugin.json` ([docs](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing)) |
 | VS Code (agent plugins, experimental) | Add `froala/froala-skills` to the `chat.plugins.marketplaces` setting, or run **Chat: Install Plugin from Source** | `plugin.json` / `.claude-plugin/plugin.json` ([docs](https://code.visualstudio.com/docs/copilot/customization/agent-plugins)) |
 | Cursor | **Customize → From GitHub Repository** → `froala/froala-skills` | `.cursor-plugin/` ([docs](https://cursor.com/docs/plugins)) |
@@ -76,6 +78,11 @@ Notes:
 - **Claude Code** loads project skills from `.claude/skills/` in the start directory and every parent up to the repository root. Commit that folder to share the skills with your team.
 - **Copilot cloud agent**: commit the skills to the repository. Per GitHub's docs, personal skills for cloud sandbox sessions must be in `.copilot/skills` in your dotfiles repository.
 - Start a new agent session (or reload the window) after copying so the agent picks up the skills.
+- **Other agents.** `npx skills add` also installs into about 70 other agents that read `SKILL.md`, including Kiro, Cline, Roo Code, JetBrains Junie, Zed, Amp, OpenCode, Goose, Continue, Augment, Trae, Qwen Code, OpenHands and Warp. Pass `-a <agent>` or let the CLI detect them; the [skills CLI agent list](https://github.com/vercel-labs/skills/blob/main/docs/agents.md) has each agent's directory.
+
+### From a website (Agent Skills Discovery)
+
+Each GitHub release attaches an [Agent Skills Discovery](https://agentskills.io/) index (`index.json` plus one `.tar.gz` per skill, each with a SHA-256 digest). Once it is hosted at `https://<site>/.well-known/agent-skills/`, `npx skills add https://<site>` installs the skills from there and rejects any archive whose digest does not match. Build it locally with `node scripts/build-discovery-index.mjs`.
 
 ### Agents without `SKILL.md` support (`AGENTS.md` fallback)
 

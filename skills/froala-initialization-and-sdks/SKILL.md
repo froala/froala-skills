@@ -248,11 +248,12 @@ key: process.env.NEXT_PUBLIC_FROALA_KEY || 'TRIAL-LICENSE-KEY-FOR-FROALA-NOT-FOR
 This step is mandatory. Do not report the integration as finished until each tier you can run passes.
 
 1. **Build.** The project builds, and type-checks if it uses TypeScript, with no errors. For Angular, run the production `ng build`: it enforces the bundle budget. `npm ls froala-editor` lists a single version.
-2. **Browser, if you have a browser automation tool** (Playwright, a Chrome MCP server or similar). Load the page and check:
+2. **Check the code against the installed version.** Run `node scripts/check-froala.mjs <projectDir>` (path relative to this skill's folder). It is read-only and offline. It reports unknown options, events, methods, plugin names and toolbar buttons for the installed `froala-editor`, a wrapper pinned to a different version, unpinned or mismatched CDN versions, `licenseKey` instead of `key`, a missing Froala stylesheet, and buttons whose plugin file isn't loaded. Fix every error (exit code 1) before finishing; exit 2 means `froala-editor` isn't installed yet. Warnings are leads to verify.
+3. **Browser, if you have a browser automation tool** (Playwright, a Chrome MCP server or similar). Load the page and check:
    - the toolbar (`.fr-toolbar`) renders, with a button (`[data-cmd="<name>"]`) for every name in `toolbarButtons`. A missing button means a missing plugin (see `references/plugin-names.md`);
    - inside `events.initialized`, `this.html.get()` returns the expected initial HTML. With no key or the trial key, 5.6.0 may append `<p data-f-id="pbf">Powered by Froala Editor</p>`; that is the licence, not a bug;
    - the console has no errors. Without a licence key, the 5.6.0 licence message in the console is expected.
-3. **Otherwise, ask the user** to confirm: the toolbar shows every button you configured, typing works, the browser console shows no errors, and the licence notice matches the key ("You are using a 30-day trial version…" with the trial key; "…is missing" or "…is invalid" means the key did not reach the editor).
+4. **Otherwise, ask the user** to confirm: the toolbar shows every button you configured, typing works, the browser console shows no errors, and the licence notice matches the key ("You are using a 30-day trial version…" with the trial key; "…is missing" or "…is invalid" means the key did not reach the editor).
 
 ---
 

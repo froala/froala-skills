@@ -30,6 +30,14 @@ Diagnose by symptom: find the closest match in the symptom index, check the caus
 2. The browser console output, captured **from page load** (many Froala errors happen during init).
 3. How Froala is loaded: CDN, `pkgd` bundle, or single plugin files.
 
+**Then run the bundled checker** if `froala-editor` is in `node_modules`, before reading code by hand:
+
+```bash
+node scripts/check-froala.mjs <projectDir> [files...] [--json]   # path relative to this skill's folder
+```
+
+It checks the project's options, events, `editor.<module>.<method>()` calls, `pluginsEnabled` names and toolbar buttons against the **installed** version, plus the wrapper's `froala-editor` pin, CDN versions, `licenseKey`, Froala 2 (jQuery) patterns, and missing CSS or plugin files. It is read-only and offline and never runs the project's code. Exit 0: no errors; 1: errors, each with file:line and a fix (treat as confirmed); 2: cannot run. If froala-editor isn't installed, ask before running the `npm i` it suggests. Warnings are leads to verify, not facts. Re-run it after fixing.
+
 In CDN URLs in the reference files, replace `VERSION` with the installed version.
 
 Many broken setups come from patterns that were right for Froala 2 or for another editor. If the code uses jQuery (`.froalaEditor(`), `froalaEditor.`-prefixed events, `licenseKey`, `@latest` CDN URLs or Vue 2 `v-model`, read [references/stale-patterns.md](references/stale-patterns.md) first.

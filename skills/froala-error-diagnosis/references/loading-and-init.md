@@ -65,7 +65,9 @@ The script tag is in `<head>` without `defer`, or the inline script runs before 
 ```js
 // WRONG
 import { FroalaEditor } from 'froala-editor'; // named export doesn't exist
+```
 
+```js
 // CORRECT
 import FroalaEditor from 'froala-editor';
 ```
@@ -178,7 +180,9 @@ events: {
     console.log(this.html.get()); // `this` is wrong
   },
 }
+```
 
+```js
 // CORRECT — `this` is the editor instance
 events: {
   contentChanged() {

@@ -2,14 +2,14 @@
 name: froala-methods-and-events
 description: >
   Use when working with Froala editor events, API methods or content options: listening for changes,
-  reading or setting content, inserting at the caret, keyboard interception, paste cleanup, image, link
-  and Enter-key options, code view, or end-to-end tests. Activates on events.on, contentChanged,
+  reading or setting content, inserting at the caret, keyboard interception, paste cleanup, image,
+  link and Enter-key options, code view, or end-to-end tests. Activates on events.on, contentChanged,
   initialized, blur, keydown, commands.before, html.get, html.set, html.insert, selection.save,
   selection.restore, getEditor(), undo.saveStep, undo.reset, edit.off, charCounterMax, pastePlain,
-  pasteDeniedTags, paste.afterCleanup, wordPasteModal, ENTER_BR, useClasses, linkAlwaysBlank, fr-deletable,
-  fontFamilyDefaultSelection, codeView.toggle; also saving content, read-only mode and character limits.
-  NOT for custom toolbar buttons or plugins (froala-custom-plugins) or upload wiring
-  (froala-filestack-integration).
+  pasteDeniedTags, pasteDeniedAttrs, pasteAllowedStyleProps, paste.afterCleanup, wordPasteModal,
+  wordPasteKeepFormatting, ENTER_BR, useClasses, linkAlwaysBlank, fr-deletable, codeView.toggle; also
+  saving content, read-only mode and character limits. NOT for custom toolbar buttons or plugins
+  (froala-custom-plugins) or upload wiring (froala-uploads-and-storage, froala-filestack-integration).
 license: MIT
 metadata:
   version: "1.2.0"

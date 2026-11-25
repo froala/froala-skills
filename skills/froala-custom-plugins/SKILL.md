@@ -2,12 +2,13 @@
 name: froala-custom-plugins
 description: >
   Use when building custom Froala plugins or toolbar extensions: a custom toolbar button, dropdown,
-  popup panel, icon, keyboard shortcut, or a plugin with its own state and public methods. Activates on
-  FroalaEditor.PLUGINS, RegisterCommand, DefineIcon, DefineIconTemplate, RegisterShortcut,
+  popup panel, icon, keyboard shortcut, or a plugin with its own state and public methods. Activates
+  on FroalaEditor.PLUGINS, RegisterCommand, DefineIcon, DefineIconTemplate, RegisterShortcut,
   popups.create, popups.show, popups.hide, POPUP_TEMPLATES, button.buildList, events.bindClick or
-  shortcutsEnabled, and when testing or cleaning up a custom plugin. Also for @mentions and autocomplete
-  with Tribute.js (tribute.attach, KEYCODE.ENTER, fr-deletable). NOT for listening to built-in
-  editor events (froala-methods-and-events) or setting up the editor itself (froala-initialization-and-sdks).
+  shortcutsEnabled, and when testing or cleaning up a custom plugin. Also for @mentions and
+  autocomplete with the Tribute.js library (KEYCODE.ENTER, fr-deletable). NOT for listening to
+  built-in editor events (froala-methods-and-events) or setting up the editor itself
+  (froala-initialization-and-sdks).
 license: MIT
 metadata:
   version: "1.2.0"
