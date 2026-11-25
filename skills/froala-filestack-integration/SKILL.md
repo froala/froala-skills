@@ -5,8 +5,8 @@ description: >
   default uploader with a custom upload flow. Activates on filestackOptions, filestackAPI,
   uploadToFilestackOnly, pickerOptions, filestack.uploadedToFilestack, filestack.filestackPickerOpened,
   openFilePicker, openFilePickerImage, image.beforeUpload, file.beforeUpload, video.beforeUpload, image.insert, filestack-js or
-  filestackcontent.com. NOT for server-side upload endpoints with imageUploadURL alone
-  (froala-error-diagnosis covers upload failures).
+  filestackcontent.com. NOT for your own server-side upload endpoints with imageUploadURL, S3 or Azure
+  (froala-uploads-and-storage builds those; froala-error-diagnosis covers upload failures).
 license: MIT
 metadata:
   version: "1.2.0"
