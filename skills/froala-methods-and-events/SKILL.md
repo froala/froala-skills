@@ -1,20 +1,20 @@
 ---
 name: froala-methods-and-events
 description: >
-  Use when working with Froala editor events or API methods: listening for changes, reading or
-  setting content, selection and cursor control, keyboard interception, paste cleanup, toolbar command
-  hooks, or calling the editor from React, Vue, Angular or Svelte code. Activates on events.on,
-  events.trigger, contentChanged, initialized, focus, blur, keydown, keyup, commands.before, html.get,
-  html.set, html.insert, selection.text, getEditor(), undo.saveStep, edit.off, edit.on, charCounterMax,
-  charCounter.count, pastePlain, pasteDeniedTags, pasteDeniedAttrs, pasteAllowedStyleProps, paste.afterCleanup,
-  wordPasteModal, wordPasteKeepFormatting; also saving and loading content, read-only mode and character limits.
-  NOT for building custom toolbar buttons or plugins (froala-custom-plugins) or for upload wiring
+  Use when working with Froala editor events, API methods or content options: listening for changes,
+  reading or setting content, inserting at the caret, keyboard interception, paste cleanup, image, link
+  and Enter-key options, code view, or end-to-end tests. Activates on events.on, contentChanged,
+  initialized, blur, keydown, commands.before, html.get, html.set, html.insert, selection.save,
+  selection.restore, getEditor(), undo.saveStep, undo.reset, edit.off, charCounterMax, pastePlain,
+  pasteDeniedTags, paste.afterCleanup, wordPasteModal, ENTER_BR, useClasses, linkAlwaysBlank, fr-deletable,
+  fontFamilyDefaultSelection, codeView.toggle; also saving content, read-only mode and character limits.
+  NOT for custom toolbar buttons or plugins (froala-custom-plugins) or upload wiring
   (froala-filestack-integration).
 license: MIT
 metadata:
   version: "1.2.0"
   verified_against: "froala-editor 5.6.0"
-  last_validated: "2026-11-20"
+  last_validated: "2026-11-25"
 ---
 
 # Froala Methods & Events
@@ -380,6 +380,29 @@ editor.selection.restore();
 // Select all content
 editor.commands.selectAll();
 ```
+
+**Inserting at the caret from outside the editor.** `html.insert()` inserts at the editor's current selection. Clicking a plain button kept the caret (observed: `<p>Hello [X]world</p>`), but after the user typed in another input first, the text landed in a new paragraph at the end. If the editor was never focused, it was appended at the end too. Save the selection on `blur` and restore it before inserting (observed: inserted at the caret):
+
+```js
+new FroalaEditor('#editor', {
+  events: {
+    blur() { this.selection.save(); },
+  },
+});
+
+function insertAtCaret(editor, text) {
+  editor.selection.restore();
+  editor.html.insert(escapeHtml(text)); // html.insert takes HTML: escape plain text
+  editor.undo.saveStep();               // fires contentChanged, so wrapper models update
+}
+```
+
+`escapeHtml` is your own helper (replace `& < > " '` with entities); observed: `' <b>&co</b>'` was inserted as literal text.
+
+## More references
+
+- [references/content-options.md](references/content-options.md): image, table and link options and classes (`fr-dib`, `fr-fil`…), the `enter` modes (`FroalaEditor.ENTER_BR`), non-editable content (`fr-deletable`), `htmlUntouched`, default fonts, code view sync and `undo.reset()`
+- [references/testing.md](references/testing.md): Playwright and Cypress tests for apps that embed Froala (waiting for `initialized`, typing, uploads, the "Powered by" paragraph); why jsdom doesn't work
 
 ## Live Documentation
 

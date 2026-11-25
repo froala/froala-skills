@@ -5,13 +5,14 @@ description: >
   popup panel, icon, keyboard shortcut, or a plugin with its own state and public methods. Activates on
   FroalaEditor.PLUGINS, RegisterCommand, DefineIcon, DefineIconTemplate, RegisterShortcut,
   popups.create, popups.show, popups.hide, POPUP_TEMPLATES, button.buildList, events.bindClick or
-  shortcutsEnabled, and when testing or cleaning up a custom plugin. NOT for listening to built-in
+  shortcutsEnabled, and when testing or cleaning up a custom plugin. Also for @mentions and autocomplete
+  with Tribute.js (tribute.attach, KEYCODE.ENTER, fr-deletable). NOT for listening to built-in
   editor events (froala-methods-and-events) or setting up the editor itself (froala-initialization-and-sdks).
 license: MIT
 metadata:
   version: "1.2.0"
   verified_against: "froala-editor 5.6.0"
-  last_validated: "2026-11-20"
+  last_validated: "2026-11-25"
 ---
 
 # Froala Custom Plugins
@@ -379,6 +380,12 @@ Test in a real browser (Playwright, Cypress or WebdriverIO): Froala needs a real
 | Several editors | Two editors on one page each get their own state |
 
 Without a license key, Froala 5.6.0 appends a "Powered by Froala Editor" paragraph to `html.get()`. Use the key in tests, or remove `p[data-f-id="pbf"]` before comparing HTML.
+
+---
+
+## @mentions
+
+Froala has no plugin for @mentions in the content (Collaboration's `mentionableUsers` is for comments only); use Tribute.js as in Froala's official example. Attach it to `editor.el` in `initialized`, and register a `keydown` handler with `editor.events.on('keydown', fn, true)` that returns `false` for `FroalaEditor.KEYCODE.ENTER` while `tribute.isActive`. Without it, Enter starts a new paragraph instead of picking the user. Insert mentions as `<span class="fr-deletable" contenteditable="false">` so Backspace removes them in one step, and escape names in the templates. Full, tested code: [references/mentions.md](references/mentions.md).
 
 ---
 

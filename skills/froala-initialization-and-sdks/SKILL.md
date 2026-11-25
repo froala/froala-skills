@@ -1,20 +1,20 @@
 ---
 name: froala-initialization-and-sdks
 description: >
-  Use when installing, configuring or licensing the Froala WYSIWYG HTML editor (a rich text editor) in
-  any project: plain JavaScript or TypeScript (npm or CDN), React, Next.js, Vue, Nuxt, Angular (with or
-  without SSR), Svelte or SvelteKit. Also use when asked to add a rich text, WYSIWYG or HTML editor to a
-  project that uses or has chosen Froala, or to secure it (XSS, CSP) or make it accessible. Activates on
-  froala-editor, react-froala-wysiwyg, vue-froala-wysiwyg, angular-froala-wysiwyg, svelte-froala-wysiwyg,
+  Use when installing, configuring, styling or licensing the Froala WYSIWYG HTML editor (a rich text
+  editor): JavaScript or TypeScript (npm or CDN), React, Next.js, Vue, Nuxt, Angular (with or without
+  SSR), Svelte or SvelteKit. Also when adding a rich text or HTML editor to a project that uses Froala, or
+  securing it (XSS, CSP) or making it accessible. Triggers: froala-editor, react-froala-wysiwyg,
+  vue-froala-wysiwyg, angular-froala-wysiwyg, svelte-froala-wysiwyg, wysiwyg-rails, django-froala-editor,
   new FroalaEditor(, FroalaEditorComponent, <froala>, [froalaEditor], toolbarButtons, pluginsEnabled,
-  pluginsDisabled, htmlAllowedTags, theme, language, direction, attribution, the key option or
-  froala_editor.pkgd.min.js. NOT for events and API methods (froala-methods-and-events), custom plugins
-  (froala-custom-plugins) or an editor that is already broken (froala-error-diagnosis).
+  pluginsDisabled, htmlAllowedTags, theme, iframe, fullPage, zIndex, fr-view, language,
+  direction, attribution, key option or froala_editor.pkgd.min.js. NOT for events or API methods
+  (froala-methods-and-events), custom plugins (froala-custom-plugins) or a broken editor (froala-error-diagnosis).
 license: MIT
 metadata:
   version: "1.2.0"
   verified_against: "froala-editor 5.6.0"
-  last_validated: "2026-11-20"
+  last_validated: "2026-11-25"
 ---
 
 # Froala Initialization & SDKs
@@ -164,7 +164,7 @@ On npm, install `froala-editor` at the exact version the wrapper pins (see "Star
 
 ## Other Frameworks
 
-Official integrations for other frameworks and CMSs are listed at https://froala.com/wysiwyg-editor/docs/framework-plugins/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-initialization-and-sdks. Server-side upload handling is covered by the server integrations and SDKs: https://www.froala.com/wysiwyg-editor/docs/sdks/nodejs?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-initialization-and-sdks
+Rails, Django, PHP/Laravel, WordPress and Symfony: [references/server-frameworks.md](references/server-frameworks.md) (package names, bundled editor versions, and gaps such as the Symfony bundle not supporting Symfony 6/7). Official integrations for other frameworks and CMSs are listed at https://froala.com/wysiwyg-editor/docs/framework-plugins/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-initialization-and-sdks. Server-side upload handling is covered by the server integrations and SDKs: https://www.froala.com/wysiwyg-editor/docs/sdks/nodejs?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-initialization-and-sdks
 
 ---
 
@@ -197,7 +197,7 @@ const config = {
 };
 ```
 
-- **Themes need their own stylesheet.** `dark`, `gray` and `royal` each require `froala-editor/css/themes/<theme>.min.css`.
+- **Themes need their own stylesheet.** `dark`, `gray` and `royal` each require `froala-editor/css/themes/<theme>.min.css`. Iframe mode, `fullPage`, sizing, `zIndex` and CSS resets such as Tailwind preflight (lists lose their bullets): [references/styling-and-iframe.md](references/styling-and-iframe.md).
 - **Grouped toolbar:** with the object form (`moreText`, `moreParagraph`, `moreRich`, `moreMisc`), a button that is in no group is never rendered.
 - **`pluginsEnabled` is an allowlist.** Setting it disables every plugin not listed — including your own custom plugins. Use `pluginsDisabled` to switch off a few plugins instead. Plugin names are in `references/plugin-names.md`.
 - **Options are read when the editor starts.** `theme`, `language`, `toolbarButtons` and the rest don't change on a running editor: destroy and re-create it (in React or Vue, change the component's `key`). For an app-wide dark mode, pick `theme: 'dark'` from your app setting (or `matchMedia('(prefers-color-scheme: dark)')`) when creating the editor; the theme adds a `<theme>-theme` class to the editor box.
@@ -277,6 +277,8 @@ This step is mandatory. Do not report the integration as finished until each tie
 - [references/stale-patterns.md](references/stale-patterns.md): wrong patterns AI assistants often suggest for Froala 5.x, with the fix
 - [references/security-and-accessibility.md](references/security-and-accessibility.md): XSS, uploads, secrets, CSP, keyboard access, Accessibility Checker, RTL
 - [references/plugin-names.md](references/plugin-names.md): plugin file → `pluginsEnabled` name → toolbar buttons (generated from the package)
+- [references/styling-and-iframe.md](references/styling-and-iframe.md): themes, `height`/`heightMin`/`heightMax`, `zIndex`, `iframe` and `iframeStyleFiles`, `fullPage`, showing saved content with `fr-view`, Tailwind preflight clashes
+- [references/server-frameworks.md](references/server-frameworks.md): Rails (`wysiwyg-rails`), Django (`django-froala-editor`), PHP/Laravel uploads, WordPress and Symfony packages, with their versions and known gaps
 - Getting started: https://froala.com/wysiwyg-editor/docs/overview/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-initialization-and-sdks
 - Framework integrations: https://froala.com/wysiwyg-editor/docs/framework-plugins/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-initialization-and-sdks
 - Options: https://froala.com/wysiwyg-editor/docs/options/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-initialization-and-sdks
