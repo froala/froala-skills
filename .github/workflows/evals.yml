@@ -33,7 +33,11 @@ jobs:
         run: |
           args=(plugin eval . --trust-plugin --no-publish --runs "$RUNS" --threshold 0.8
                 --model claude-sonnet-5-5 --judge-model claude-haiku-5-5
-                --max-cost-usd 25 --json evals/results/ci.json --report evals/results/report.html)
+                --max-cost-usd 25 --json evals/results/ci.json --report evals/results/report.html
+                --scaffold --allow-tools 'Bash(node:*)')
+          # --scaffold runs our own evals/*/scaffold.sh (runs-check-froala installs froala-editor into the run's
+          # workspace); the Bash grant lets that case run node <skill>/scripts/check-froala.mjs, and only cases
+          # that list Bash in allowed_tools can use it.
           if [ -n "$TAG" ]; then args+=(--tag "$TAG"); fi
           npx --yes @anthropic-ai/claude-code@2.1.328 "${args[@]}"
       - name: Upload report

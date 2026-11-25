@@ -31,6 +31,8 @@ jobs:
           node-version: 22
       - name: Negative tests (the validator must catch known-bad examples)
         run: node tests/run-negative-tests.mjs
+      - name: Project checker tests (skills/*/scripts/check-froala.mjs)
+        run: node tests/check-froala.test.mjs
       - name: Check skills (PRs and pushes use the version the skills declare)
         if: github.event_name != 'schedule'
         env:
