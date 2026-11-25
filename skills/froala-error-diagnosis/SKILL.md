@@ -1,15 +1,15 @@
 ---
 name: froala-error-diagnosis
 description: >
-  Use when a Froala editor is broken, throws, looks wrong or silently does nothing, even from a symptom
-  alone. Activates on toolbar or button missing, button does nothing, plugin not loading, editor not
-  rendering or unstyled, FroalaEditor is not defined or not a constructor, Cannot read properties of
-  undefined, Element/document is not defined, Element type is invalid, NG2012, TS7016, "Duplicate
-  identifier 'LineHeight'", bundle initial exceeded maximum budget, Angular CLI requires a minimum
-  Node.js version, Failed to resolve component: froala, popup off-screen or behind a modal,
-  scrollableContainer, iOS Safari, images gone on reload, No link in upload response, license key is
-  missing or invalid, Powered by Froala Editor in saved HTML, read-only not working, AI terms popup, Word
-  import/export does nothing, or broke after an update. NOT for first-time setup
+  Use when a Froala editor is broken, throws or silently does nothing. Activates on toolbar or button
+  missing, button does nothing, option has no effect, plugin not loading, editor not rendering or
+  unstyled, FroalaEditor is not defined or not a constructor, Cannot read properties of undefined,
+  Element/document is not defined, Element type is invalid, NG2012, TS7016, "Duplicate identifier
+  'LineHeight'", bundle initial exceeded maximum budget, Angular CLI requires a minimum Node.js
+  version, Failed to resolve component: froala, popup off-screen or behind a modal,
+  scrollableContainer, iOS Safari, images gone on reload, No link in upload response, licence notice
+  or license key is missing or invalid, Powered by Froala Editor in saved HTML, read-only not working,
+  AI terms popup, Word import/export does nothing, or broke after an update. NOT for first-time setup
   (froala-initialization-and-sdks).
 license: MIT
 metadata:

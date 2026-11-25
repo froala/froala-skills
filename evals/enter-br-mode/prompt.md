@@ -1,5 +1,5 @@
 ---
-description: Enter should insert <br> instead of <p>. Expected answer is enter: FroalaEditor.ENTER_BR (a constant, not a string), noting that existing <p> content is not converted.
+description: "Enter should insert <br> instead of <p>. Expected answer is enter: FroalaEditor.ENTER_BR (a constant, not a string), noting that existing <p> content is not converted."
 tags: [options]
 max_turns: 10
 allowed_tools: [Read, Glob, Grep, Skill]

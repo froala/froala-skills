@@ -22,6 +22,10 @@ execution:
 
     Why doesn't it work? Check it against the version I have installed.
 graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?froala-'
   - name: ran-check-froala
     type: tool_used
     tool: Bash
