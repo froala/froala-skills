@@ -82,7 +82,7 @@ Notes:
 
 ### From a website (Agent Skills Discovery)
 
-Each GitHub release attaches an [Agent Skills Discovery](https://agentskills.io/) index (`index.json` plus one `.tar.gz` per skill, each with a SHA-256 digest). Once it is hosted at `https://<site>/.well-known/agent-skills/`, `npx skills add https://<site>` installs the skills from there and rejects any archive whose digest does not match. Build it locally with `node scripts/build-discovery-index.mjs`.
+Each GitHub release attaches an [Agent Skills Discovery](https://agentskills.io/) index (`index.json` plus one `.tar.gz` per skill, each with a SHA-256 digest). Once it is hosted at `https://<site>/.well-known/agent-skills/`, `npx skills add https://<site>` installs the skills from there and rejects any archive whose digest does not match. Build it locally with `node scripts/build-discovery-index.mjs`. Host the files on a normal web server or CDN: the CLI downloads the archives in parallel and silently skips any that fail to download.
 
 ### Agents without `SKILL.md` support (`AGENTS.md` fallback)
 
