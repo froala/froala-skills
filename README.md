@@ -1,6 +1,6 @@
 # Froala Agent Skills
 
-Froala is a modern, framework-agnostic WYSIWYG rich text editor written in plain JavaScript (no jQuery since version 3). These portable [Agent Skills](https://agentskills.io/home) make an AI coding agent an expert on [Froala WYSIWYG editor](https://froala.com/wysiwyg-editor/) development — initialization, events, custom plugins, AI Assist, Word and Markdown workflows, Filestack uploads, and error diagnosis.
+Froala is a modern, framework-agnostic WYSIWYG rich text editor written in plain JavaScript (no jQuery since version 3). These portable [Agent Skills](https://agentskills.io/home) make an AI coding agent an expert on [Froala WYSIWYG editor](https://froala.com/wysiwyg-editor/) development — initialization, events, custom plugins, uploads and storage, AI Assist, Word and Markdown workflows, Filestack, and error diagnosis.
 
 > Checked against **froala-editor 5.6.0** (see `metadata.verified_against` in each `SKILL.md`). CI checks every pull request against that version, and a weekly job compares the skills with the latest Froala release. The validator checks names and structure (options, events, buttons, plugin names, method calls, frontmatter, versions); it cannot prove that an example behaves correctly at runtime.
 
@@ -40,6 +40,18 @@ Requires Node.js 22.20 or later. See the [skills CLI reference](https://github.c
 
 The skills then load as `froala:froala-initialization-and-sdks`, `froala:froala-methods-and-events`, and so on.
 
+### Plugin install in other agents
+
+The same repository is also a plugin or extension for these agents:
+
+| Agent | Install | Manifest it reads |
+|---|---|---|
+| OpenAI Codex | `codex plugin marketplace add froala/froala-skills`, then `codex plugin add froala@froala-skills` | `.claude-plugin/marketplace.json` and `plugin.json` ([docs](https://developers.openai.com/codex/plugins)) |
+| Gemini CLI | `gemini extensions install https://github.com/froala/froala-skills` | `gemini-extension.json` ([docs](https://geminicli.com/docs/extensions/)) |
+| GitHub Copilot CLI | `copilot plugin marketplace add froala/froala-skills`, then `copilot plugin install froala@froala-skills` | `.claude-plugin/marketplace.json` and `plugin.json` ([docs](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing)) |
+| VS Code (agent plugins, experimental) | Add `froala/froala-skills` to the `chat.plugins.marketplaces` setting, or run **Chat: Install Plugin from Source** | `plugin.json` / `.claude-plugin/plugin.json` ([docs](https://code.visualstudio.com/docs/copilot/customization/agent-plugins)) |
+| Cursor | **Customize → From GitHub Repository** → `froala/froala-skills` | `.cursor-plugin/` ([docs](https://cursor.com/docs/plugins)) |
+
 ### Manual install, per agent
 
 Copy each `skills/<name>/` folder you want (the folder, not just `SKILL.md`, because some skills have a `references/` folder) into your agent's skills directory:
@@ -66,6 +78,11 @@ Notes:
 - **Claude Code** loads project skills from `.claude/skills/` in the start directory and every parent up to the repository root. Commit that folder to share the skills with your team.
 - **Copilot cloud agent**: commit the skills to the repository. Per GitHub's docs, personal skills for cloud sandbox sessions must be in `.copilot/skills` in your dotfiles repository.
 - Start a new agent session (or reload the window) after copying so the agent picks up the skills.
+- **Other agents.** `npx skills add` also installs into about 70 other agents that read `SKILL.md`, including Kiro, Cline, Roo Code, JetBrains Junie, Zed, Amp, OpenCode, Goose, Continue, Augment, Trae, Qwen Code, OpenHands and Warp. Pass `-a <agent>` or let the CLI detect them; the [skills CLI agent list](https://github.com/vercel-labs/skills/blob/main/docs/agents.md) has each agent's directory.
+
+### From a website (Agent Skills Discovery)
+
+Each GitHub release attaches an [Agent Skills Discovery](https://agentskills.io/) index (`index.json` plus one `.tar.gz` per skill, each with a SHA-256 digest). Once it is hosted at `https://<site>/.well-known/agent-skills/`, `npx skills add https://<site>` installs the skills from there and rejects any archive whose digest does not match. Build it locally with `node scripts/build-discovery-index.mjs`. Host the files on a normal web server or CDN: the CLI downloads the archives in parallel and silently skips any that fail to download.
 
 ### Agents without `SKILL.md` support (`AGENTS.md` fallback)
 
@@ -77,6 +94,7 @@ Before writing or changing Froala editor code, read the matching guide and follo
 - Setup, frameworks, toolbar, license key: .agents/skills/froala-initialization-and-sdks/SKILL.md
 - Events, html.get/set, paste: .agents/skills/froala-methods-and-events/SKILL.md
 - Custom buttons and plugins: .agents/skills/froala-custom-plugins/SKILL.md
+- Upload endpoints, server SDKs, S3/Azure, image manager: .agents/skills/froala-uploads-and-storage/SKILL.md
 - Filestack uploads: .agents/skills/froala-filestack-integration/SKILL.md
 - AI Assist: .agents/skills/froala-ai-assist/SKILL.md
 - Word, Markdown, Track Changes, collaboration: .agents/skills/froala-document-features/SKILL.md
@@ -162,7 +180,21 @@ Covers:
 - SVG icon registration and shortcut key binding
 - Plugin loading order requirements
 
-**Trigger keywords:** `FroalaEditor.PLUGINS`, `RegisterCommand`, `DefineIcon`, `initPopup`, `showPopup`, `POPUP_TEMPLATES`
+**Trigger keywords:** `FroalaEditor.PLUGINS`, `RegisterCommand`, `DefineIcon`, `RegisterShortcut`, `popups.create`, `POPUP_TEMPLATES`, `events.bindClick`
+
+---
+
+### `froala-uploads-and-storage`
+
+**Activates when** you build or configure where the editor stores images, files and videos.
+
+- The upload request and the `{ "link": ... }` response, `imageUploadParams`, `requestHeaders`, size and type limits, and the `image.error` codes
+- The official server SDKs (Node, PHP, Python, .NET, Java, Ruby), with the checks they leave to you: they trust the client's file name and content type
+- Direct browser uploads to S3 (`imageUploadToS3`) and Azure Blob (`imageUploadToAzure`), signed on the server so the secret never reaches the browser
+- Deleting stored files on `image.removed` / `file.unlink` / `video.removed`, and why undo and `html.set()` make that unsafe without a save-time cleanup
+- Image manager load and delete endpoints
+
+**Trigger keywords:** `imageUploadURL`, `fileUploadURL`, `videoUploadURL`, `imageUploadToS3`, `imageUploadToAzure`, `requestHeaders`, `image.removed`, `file.unlink`, `imageManagerLoadURL`, `imageManagerDeleteURL`, `wysiwyg-editor-node-sdk`
 
 ---
 
@@ -185,7 +217,7 @@ Covers two approaches:
 - Applying Filestack CDN transformations (resize, format conversion) before insert
 - Common pitfalls (missing `return false`, arrow function `this` context loss, wrong Filestack JS version)
 
-**Trigger keywords:** `filestackOptions`, `filestackAPI`, `uploadToFilestackOnly`, `pickerOptions`, `filestack.uploadedToFilestack`, `filestack.filestackPickerOpened`, `image.beforeUpload`, `file.beforeUpload`, `imageUploadURL`, `fileUploadURL`, `filestackcontent.com`
+**Trigger keywords:** `filestackOptions`, `filestackAPI`, `uploadToFilestackOnly`, `pickerOptions`, `filestack.uploadedToFilestack`, `filestack.filestackPickerOpened`, `image.beforeUpload`, `file.beforeUpload`, `filestackcontent.com`
 
 ---
 
@@ -302,47 +334,49 @@ Froala has a rich but sprawling API. Developers repeatedly hit the same problems
 
 ---
 
+## How the skills are kept accurate
+
+- **Package-checked identifiers.** `scripts/validate-skills.mjs` checks every option, event, method (as `module.method` pairs), button, plugin name, command and file path in the skills against the published `froala-editor` package, plus frontmatter, links, line budgets and manifest versions. CI runs it on every PR and weekly against the latest Froala release.
+- **Negative tests.** `tests/run-negative-tests.mjs` feeds the validator deliberately broken skills and checks it reports each mistake.
+- **Behavioural evals.** `evals/` holds [`claude plugin eval`](https://code.claude.com/docs/en/plugin-evals) cases: real developer prompts, graded on the code the agent writes, each run with and without the skills so the improvement is measured. Run them with `claude plugin eval .` or the **Skill evals** workflow.
+
+---
+
 ## Project Structure
 
 ```
 froala-skills/
 ├── .claude-plugin/
-│   ├── plugin.json         # Plugin metadata
-│   └── marketplace.json    # Marketplace entry (local + remote install)
+│   ├── plugin.json         # Claude Code plugin manifest (icon, links)
+│   └── marketplace.json    # Marketplace entry (also read by Copilot CLI)
+├── .cursor-plugin/         # Cursor plugin + marketplace manifests
+├── gemini-extension.json   # Gemini CLI extension manifest
+├── assets/icon.png         # Plugin icon
 ├── skills/
-│   ├── froala-initialization-and-sdks/
-│   │   ├── SKILL.md
-│   │   └── references/plugin-names.md   # generated from the package
-│   ├── froala-methods-and-events/
-│   │   └── SKILL.md
-│   ├── froala-custom-plugins/
-│   │   └── SKILL.md
-│   ├── froala-filestack-integration/
-│   │   └── SKILL.md
-│   ├── froala-ai-assist/
-│   │   └── SKILL.md
-│   ├── froala-document-features/
-│   │   └── SKILL.md
-│   ├── froala-migrate/
-│   │   ├── SKILL.md
-│   │   └── references/          # detection, per-editor mappings, content conversion, plan template
-│   ├── froala-upgrade/
-│   │   ├── SKILL.md
-│   │   └── references/          # per-version breaking changes, wrappers
-│   └── froala-error-diagnosis/
+│   └── <skill-name>/
 │       ├── SKILL.md
-│       └── references/plugin-names.md   # generated from the package
+│       ├── references/     # loaded on demand: per-framework guides, generated
+│       │                   # plugin-names.md, skill-feedback.md, …
+│       └── scripts/        # check-froala.mjs (generated; init, error-diagnosis, upgrade)
+├── evals/                  # claude plugin eval cases (results/ is git-ignored)
 ├── scripts/
-│   └── validate-skills.mjs # Checks skills against the published froala-editor package
-├── .github/
-│   ├── workflows/validate-skills.yml  # Runs the checks on every PR and weekly
-│   └── ISSUE_TEMPLATE/                 # Skill feedback form
+│   ├── validate-skills.mjs     # Checks skills against the published froala-editor package
+│   ├── check-froala.mjs        # Source of the agent-run project checker copied into skills
+│   ├── build-discovery-index.mjs # Agent Skills Discovery index for releases
+│   └── validate-allowlist.json # Non-Froala names the validator accepts, with reasons
 ├── tests/
-│   ├── fixtures/           # Deliberately broken examples
-│   └── run-negative-tests.mjs
-├── plugin.json             # Cross-agent plugin manifest (agent-plugins.org)
+│   ├── fixtures/           # Deliberately broken (and one valid) skill sets
+│   ├── run-negative-tests.mjs
+│   └── check-froala.test.mjs
+├── .github/
+│   ├── workflows/validate-skills.yml  # Validator, tests and plugin validation on every PR, weekly
+│   ├── workflows/evals.yml            # Behavioural evals, on demand
+│   ├── workflows/release.yml          # Attaches the discovery index to each release
+│   └── ISSUE_TEMPLATE/                # Skill feedback form
+├── plugin.json             # Cross-agent manifest (agent-plugins.org; Codex, Copilot, VS Code)
 ├── skills.sh.json          # Grouping metadata for the skills.sh directory
 ├── CHANGELOG.md
+├── LICENSE
 ├── PLUGIN_DESCRIPTION.md
 └── README.md
 ```
@@ -357,4 +391,4 @@ If an agent gave a wrong or outdated Froala answer while using these skills, [op
 
 ## License
 
-MIT
+[MIT](LICENSE)

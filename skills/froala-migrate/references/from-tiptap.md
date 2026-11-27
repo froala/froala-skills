@@ -2,8 +2,8 @@
 
 Identifiers checked against `@tiptap/*` 3.34.0 (`@tiptap/starter-kit`, `@tiptap/html`, `@tiptap/react`).
 Froala names checked against `froala-editor` 5.6.0.
-Official Froala guides: https://froala.com/wysiwyg-editor/docs/migration-guides/migrate-tiptap-to-froala/ and
-https://froala.com/wysiwyg-editor/docs/migration-guides/prosemirror-to-froala/
+Official Froala guides: https://froala.com/wysiwyg-editor/docs/migration-guides/migrate-tiptap-to-froala/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate and
+https://froala.com/wysiwyg-editor/docs/migration-guides/prosemirror-to-froala/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate
 
 <!-- validate:skip -->
 ## First: what does the app store?
@@ -39,7 +39,7 @@ CodeBlock, HorizontalRule, HardBreak, BulletList, OrderedList, ListItem, ListKey
 | Mention | No built-in plugin | Froala's Tribute.js example (https://froala.com/wysiwyg-editor/examples/tribute-js/); keep the stored `data-*` attributes with `htmlAllowedAttrs` |
 | BubbleMenu, FloatingMenu | `toolbarInline`, `quickInsert` | Inline toolbar on selection; quick-insert menu on empty lines |
 | Collaboration, CollaborationCaret | `collaborative` | Froala 5.3+, different backend |
-| Custom nodes and marks written by the project | Froala custom plugin (`froala-custom-plugins`), or keep their HTML with `htmlAllowedTags` / `htmlAllowedAttrs` | |
+| Custom nodes and marks written by the project | Froala custom plugin ([Custom plugin](https://froala.com/wysiwyg-editor/docs/concepts/custom/plugin/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate)), or keep their HTML with `htmlAllowedTags` / `htmlAllowedAttrs` | |
 
 ## API and events
 

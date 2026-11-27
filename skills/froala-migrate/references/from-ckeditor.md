@@ -3,10 +3,12 @@
 Identifiers checked against `ckeditor5` and `ckeditor5-premium-features` 49.1.0 (toolbar names from the
 packages' `ckeditor5-metadata.json`) and `ckeditor4` 4.25.2. Froala names checked against
 `froala-editor` 5.6.0 (CI re-checks the Froala column).
-Official Froala guides: https://froala.com/wysiwyg-editor/docs/migration-guides/ckeditor-5-to-froala/ and
-https://froala.com/wysiwyg-editor/docs/migration-guides/ckeditor/
+Official Froala guides: https://froala.com/wysiwyg-editor/docs/migration-guides/ckeditor-5-to-froala/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate and
+https://froala.com/wysiwyg-editor/docs/migration-guides/ckeditor/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate
 
 Support and licence facts for CKEditor 4 and 5 (with sources) are in `vendor-status.md`.
+
+**Contents:** [CKEditor 5 toolbar items](#ckeditor-5-toolbar-items) · [CKEditor 5 premium features (only if the project uses them)](#ckeditor-5-premium-features-only-if-the-project-uses-them) · [Options and API](#options-and-api) · [Content](#content) · [CKEditor 4](#ckeditor-4)
 
 ## CKEditor 5 toolbar items
 
@@ -71,7 +73,7 @@ Support and licence facts for CKEditor 4 and 5 (with sources) are in `vendor-sta
 | `language` | `language` | Load the Froala language file |
 | `toolbar.items` | `toolbarButtons` | `toolbar.shouldNotGroupWhenFull` → `toolbarButtons` groups and `toolbarButtonsMD` / `SM` / `XS` |
 | `simpleUpload.uploadUrl`, `simpleUpload.headers`, `simpleUpload.withCredentials` | `imageUploadURL`, `requestHeaders`, `requestWithCredentials` | Response key differs, see below |
-| custom `UploadAdapter` | `image.beforeUpload` event + `image.insert()` | Pattern in `froala-filestack-integration` |
+| custom `UploadAdapter` | `image.beforeUpload` event + `image.insert()` | Read `editor.image.get()` once (the image being replaced, or `null`) and upload the files yourself. Insert one file at a time with `editor.image.insert(url, false, null, replacing)` for the first file and `null` for the rest, waiting for `image.inserted` / `image.replaced` before the next insert and calling `editor.selection.setAfter()` on the previous image first (otherwise later images land at the start of the document). Return `false` so Froala skips its own upload. Full code (if installed): the froala-filestack-integration skill, "Manual Interception" |
 | `htmlSupport` (General HTML Support) | `htmlAllowedTags`, `htmlAllowedAttrs` | Extend Froala's defaults; still sanitize on the server |
 | `editor.getData()` / `setData()` | `html.get()` / `html.set()` | |
 | `editor.model.document.on('change:data')` | `contentChanged` event | |

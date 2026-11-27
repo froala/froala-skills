@@ -1,6 +1,6 @@
 # Froala Agent Skills
 
-Froala is a modern, framework-agnostic WYSIWYG rich text editor written in plain JavaScript (no jQuery since version 3). These portable skills make an AI coding agent an expert on Froala WYSIWYG editor development — initialization, events, custom plugins, Filestack cloud storage integration, and error diagnosis.
+Froala is a modern, framework-agnostic WYSIWYG rich text editor written in plain JavaScript (no jQuery since version 3). These portable skills make an AI coding agent an expert on Froala WYSIWYG editor development: setup in every major framework, the API and events, custom plugins, AI Assist, Word, Markdown, Track Changes and collaboration, Filestack uploads, error diagnosis, migration from other editors, and upgrades between Froala versions. Every API name is checked against the published `froala-editor` package, and behavioural evals measure the code agents write with and without the skills.
 
 ---
 
@@ -21,6 +21,7 @@ Written in the open `SKILL.md` format, so they work in Claude Code, Cursor, Code
 | `froala-initialization-and-sdks` | Installing, configuring or licensing Froala in plain JS/TS, a framework wrapper or another official integration | Installation for vanilla JS/TS, React, Next.js, Vue, Nuxt, Angular, Svelte; bundles and plugin names; toolbar and theme config; licensing; SSR rules |
 | `froala-methods-and-events` | Writing event listeners, getting/setting HTML content, intercepting keyboard input, or accessing the `editor` instance | Event listener syntax; safe HTML get/set; paste cleanup config; React ref readiness |
 | `froala-custom-plugins` | Registering custom plugins, creating toolbar buttons, building floating popups, or extending formatting | Custom plugin boilerplate; command and dropdown registration; SVG icon registration; popups without inline handlers; plugin load order |
+| `froala-uploads-and-storage` | Building where images, files and videos are stored: upload endpoints, server SDKs, S3/Azure, deleting files, the image manager | The `{ "link": … }` contract and error codes; Node, PHP, Python, .NET, Java and Ruby SDKs with their security gaps; server-side S3/Azure signing; delete-on-remove caveats (undo, `html.set()`); image manager load/delete |
 | `froala-filestack-integration` | Configuring image/file upload through Filestack, or replacing the default uploader | Official `filestack` plugin setup via `filestackOptions` (never restrict `pluginsEnabled` to `['filestack']`); manual `image.beforeUpload` interception that handles every dropped file |
 | `froala-ai-assist` | Adding AI writing features: prompts, tone, translate, improve writing, AI Chat, autocomplete | Required terms option; backend proxy through `aiAssistRequest`; streaming and conversation continuity; inline-suggestion defaults |
 | `froala-document-features` | Word import/export, Markdown, Track Changes, real-time collaboration | Dependencies and version gates; Markdown mode rules; collaboration roles; verification steps |

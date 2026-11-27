@@ -7,6 +7,7 @@
       "description": "Add Froala to a JavaScript project and wire it up to the services around it.",
       "skills": [
         "froala-initialization-and-sdks",
+        "froala-uploads-and-storage",
         "froala-filestack-integration"
       ]
     },

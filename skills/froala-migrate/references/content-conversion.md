@@ -4,6 +4,8 @@ Froala stores and loads **HTML** (`html.get()` / `html.set()`). Content saved by
 loads as it is; JSON formats must be converted to HTML first. In both cases, convert **copies**, keep the
 originals, and let the user approve before anything is written back.
 
+**Contents:** [Rules for every conversion script](#rules-for-every-conversion-script) · [Converting JSON formats to HTML](#converting-json-formats-to-html) · [What Froala changes when it loads HTML](#what-froala-changes-when-it-loads-html) · [Images and other files inside content](#images-and-other-files-inside-content) · [Verifying a conversion](#verifying-a-conversion)
+
 ## Rules for every conversion script
 
 - Read from the database (or an export), write to a **new** column, table or file. Never overwrite the source.

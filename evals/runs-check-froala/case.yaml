@@ -1,0 +1,45 @@
+schema_version: "1.0"
+name: runs-check-froala
+description: >-
+  In a project with froala-editor installed, a "why doesn't my config work" question should make the agent run the
+  skill's scripts/check-froala.mjs and fix licenseKey -> key and the misspelt option. Needs --scaffold (the scaffold
+  installs froala-editor 5.6.0 from npm) and --allow-tools "Bash(node:*)".
+tags: [diagnosis, scaffold]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 16
+  allowed_tools: [Read, Glob, Grep, Skill, Bash]
+  prompt: |
+    My Froala editor (froala-editor is installed in this project, see src/editor.js) still shows the licence
+    notice even though I set my key, and the toolbar ignores the sticky offset I set. This is my config:
+
+        new FroalaEditor('#editor', {
+          licenseKey: 'MY-REAL-KEY',
+          toolbarStickyOfset: 60,
+          toolbarButtons: ['bold', 'italic', 'insertLink']
+        });
+
+    Why doesn't it work? Check it against the version I have installed.
+graders:
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?froala-'
+  - name: ran-check-froala
+    type: tool_used
+    tool: Bash
+    input_match: 'check-froala\.mjs'
+    min: 1
+  - name: uses-key
+    type: regex
+    pattern: "\\bkey\\s*:\\s*['\"]"
+  - name: names-offset-option
+    type: regex
+    pattern: "toolbarStickyOffset"
+  - name: rubric
+    type: llm
+    criteria: >-
+      PASS if the answer says licenseKey is not a Froala option and the licence goes in `key`, and that
+      toolbarStickyOfset is misspelt (the option is toolbarStickyOffset), checked against the installed froala-editor
+      version. FAIL if it keeps licenseKey, invents options, or recommends a different editor.

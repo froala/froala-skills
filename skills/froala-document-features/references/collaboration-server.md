@@ -4,6 +4,8 @@ A minimal backend for the collaborative plugin, built from the routes and relay 
 
 Checked with froala-editor 5.6.0 and wysiwyg-editor-node-sdk 5.6.0 from npm, Express 5 and Node 24, in Chromium: two users editing the same `docId` live, a later joiner receiving the current content, async-mode save and reload, and a rejected WebSocket upgrade.
 
+**Contents:** [Install](#install) · [Server](#server) · [Browser](#browser) · [Before production](#before-production)
+
 ## Install
 
 ```bash

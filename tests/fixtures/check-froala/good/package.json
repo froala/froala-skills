@@ -1,0 +1,8 @@
+{
+  "name": "check-froala-good",
+  "private": true,
+  "dependencies": {
+    "froala-editor": "5.6.0",
+    "react-froala-wysiwyg": "5.6.0"
+  }
+}

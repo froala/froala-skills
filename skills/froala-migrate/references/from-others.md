@@ -1,9 +1,9 @@
 # Other editors → Froala
 
-Official Froala guides: Summernote (https://froala.com/wysiwyg-editor/docs/migration-guides/summernote-to-froala/),
-Lexical (https://froala.com/wysiwyg-editor/docs/migration-guides/migrate-lexical-to-froala/), Trix
-(https://froala.com/wysiwyg-editor/docs/migration-guides/trix/initialization/), ContentTools and Aloha
-(index: https://froala.com/wysiwyg-editor/docs/migration-guides/).
+Official Froala guides: Summernote (https://froala.com/wysiwyg-editor/docs/migration-guides/summernote-to-froala/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate),
+Lexical (https://froala.com/wysiwyg-editor/docs/migration-guides/migrate-lexical-to-froala/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate), Trix
+(https://froala.com/wysiwyg-editor/docs/migration-guides/trix/initialization/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate), ContentTools and Aloha
+(index: https://froala.com/wysiwyg-editor/docs/migration-guides/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate).
 
 Froala names checked against `froala-editor` 5.6.0. For each editor, the main work is usually the
 **content format**, not the toolbar.

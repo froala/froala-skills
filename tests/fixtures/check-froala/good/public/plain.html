@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <link href="https://cdn.jsdelivr.net/npm/froala-editor@5.6.0/css/froala_editor.pkgd.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div id="editor"></div>
+    <script src="https://cdn.jsdelivr.net/npm/froala-editor@5.6.0/js/froala_editor.pkgd.min.js"></script>
+    <script>
+      const editor = new FroalaEditor('#editor', {
+        toolbarButtons: ['bold', 'insertTable', 'emoticons'],
+        events: {
+          'contentChanged': function () {
+            document.title = this.html.get().length;
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

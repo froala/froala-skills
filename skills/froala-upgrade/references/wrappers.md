@@ -25,7 +25,7 @@ With a range (older Vue wrappers, Svelte), a fresh install can resolve a newer `
 | 4.6.0 | React 19 added to the peer dependencies (React 0.14 – 19); depends on `serialize-javascript` |
 | 5.6.0 | `serialize-javascript` `^7.0.3`. Behaviour: `initialized` runs once per editor under StrictMode (twice in development is the StrictMode remount, not a bug); `onModelChange` no longer fires on load; passing the editor's value back into `model` keeps undo history; props and options are type-checked; `initialize()` / `destroy()` work on a ref; Vite 8 default import fixed |
 
-Before 5.6.0, under Vite 8 the default import resolves to `{ default: … }` and React throws "Element type is invalid" (see froala-error-diagnosis). Upgrading to 5.6.0 fixes it.
+Before 5.6.0, under Vite 8 the default import resolves to `{ default: … }` and React throws "Element type is invalid". Upgrading to 5.6.0 fixes it.
 
 ## Vue (`vue-froala-wysiwyg`)
 
@@ -47,7 +47,7 @@ A Vue 2 app can't go past `vue-froala-wysiwyg` 4.0.19. Upgrade the app to Vue 3 
 | 3.x + | No jQuery. Module API unchanged: `FroalaEditorModule.forRoot()`, `FroalaViewModule.forRoot()` (5.6.0 also exports `FERootModule` as a shortcut) |
 | 5.6.0 | README: "Angular 19+ bindings"; package ships `fesm2022` builds. Fixes: Reactive Forms reset, popups above Angular Material v21 dialogs |
 
-Check the project's Angular version before choosing the target: the 5.6.0 wrapper targets Angular 19+. Standalone setup, SSR and bundle-budget notes are in froala-initialization-and-sdks.
+Check the project's Angular version before choosing the target: the 5.6.0 wrapper targets Angular 19+. Standalone setup and SSR: the wrapper README (https://github.com/froala/angular-froala-wysiwyg#readme) and Froala's [Angular guide](https://froala.com/wysiwyg-editor/docs/framework-plugins/angular/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-upgrade).
 
 ## Svelte (`svelte-froala-wysiwyg`)
 

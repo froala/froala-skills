@@ -1,6 +1,6 @@
 # Froala 5.x minor releases (5.0.0 → 5.6.0)
 
-Sources: the [changelog](https://froala.com/wysiwyg-editor/changelog/), [Migrating from Froala V4 to Froala V5](https://froala.com/wysiwyg-editor/docs/migrating-from-froala-4-to-froala-5/) (options, methods and events per version) and the npm packages `froala-editor` 5.0.0 – 5.6.0 (each feature below was checked in the package of the version named).
+Sources: the [changelog](https://froala.com/wysiwyg-editor/changelog/), [Migrating from Froala V4 to Froala V5](https://froala.com/wysiwyg-editor/docs/migrating-from-froala-4-to-froala-5/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-upgrade) (options, methods and events per version) and the npm packages `froala-editor` 5.0.0 – 5.6.0 (each feature below was checked in the package of the version named).
 
 Minor releases inside 5.x keep the same licence key and add features; none removed an option or a toolbar command (package diff 5.0.0 → 5.6.0). Still read the rows between the installed and the target version: some change default output or wrapper behaviour.
 
@@ -53,11 +53,11 @@ If the user wants a feature, the target version must be at least the one in this
 - AI Chat: `aiChatWebSearchEnabled` and `aiChatReasoningEnabled` are now requests that a model's `webSearch: false` / `reasoning: false` overrides; `aiAssistRequest` receives `regenerate: true` on "Try again".
 
 ### 5.6.0
-- **Licence behaviour.** The red "unlicensed" banner is replaced by a short notice next to "Powered by Froala" (missing / trial / invalid / expired). With no key or the trial key, `localhost` now shows the same notice as a live site, and `html.get()` appends `<p data-f-id="pbf">Powered by Froala Editor</p>` — so the paragraph ends up in saved content and, in React, in the `model`. **Set a real key before saving content.** Loading a document back with `html.set()` removes the paragraph, so re-saving affected documents with a licensed editor cleans them.
+- **Licence behaviour.** The red "unlicensed" banner is replaced by a short notice next to "Powered by Froala" (missing / trial / invalid / expired). With no key or the trial key, `localhost` now shows the same notice as a live site, and `html.get()` appends `<p data-f-id="pbf" …>Powered by <a …>Froala Editor</a></p>` — so the paragraph ends up in saved content and, in React, in the `model`. **Set a real key before saving content.** Loading a document back with `html.set()` removes the paragraph, so re-saving affected documents with a licensed editor cleans them.
 - **Security:** XSS fixes in the Word Export plugin. A reason to upgrade any project that uses `exportToWord`.
 - React wrapper: under StrictMode `initialized` no longer runs three times; `onModelChange` no longer fires when the editor loads (only on real changes); passing the editor's own value back into `model` no longer clears undo history; props and editor options are type-checked (new TypeScript errors can surface); `initialize()` / `destroy()` work on a ref; a Vite 8 app no longer gets a blank page with the default import. Code that relied on the load-time `onModelChange` must change.
 - Angular wrapper: after a Reactive Forms reset the first edit updates the form value; popups show above Angular Material v21 dialogs.
-- New default toolbar buttons `paintFormat` and `accessibilityChecker` (see SKILL.md step 5).
+- New default toolbar buttons `paintFormat` and `accessibilityChecker` (see SKILL.md step 6).
 
 ## Patch releases
 
