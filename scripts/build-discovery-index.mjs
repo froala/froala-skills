@@ -74,6 +74,13 @@ const skillsDir = path.join(ROOT, 'skills');
 const names = fs.readdirSync(skillsDir).filter((d) => fs.existsSync(path.join(skillsDir, d, 'SKILL.md'))).sort();
 if (!names.length) fail('no skills found');
 
+// OUT is deleted and rebuilt, so refuse anything that is not a previous build: the repo itself, a folder
+// above it, or a folder that already holds other files (`--out skills` must not wipe the skills).
+const fromOut = path.relative(OUT, ROOT);
+if (!fromOut || (!fromOut.startsWith('..') && !path.isAbsolute(fromOut))) fail(`--out ${OUT} is this repository or a folder above it`);
+if (fs.existsSync(OUT) && fs.readdirSync(OUT).length && !fs.existsSync(path.join(OUT, 'index.json'))) {
+  fail(`--out ${OUT} already has files and is not an earlier discovery index (no index.json); use an empty folder`);
+}
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 

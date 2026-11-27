@@ -109,13 +109,13 @@ For Node, [server-sdk-node.md](references/server-sdk-node.md) has a tested Expre
 The browser uploads straight to the bucket. **The secret key never reaches the browser:** your server returns a policy signed for a few minutes.
 
 ```js
-const getS3Config = () => fetch('/api/uploads/s3-config', { credentials: 'same-origin' }).then((r) => r.json());
+// One signed policy per kind: each one only accepts its own Content-Type prefix.
+const getS3Config = (kind) => fetch(`/api/uploads/s3-config?kind=${kind}`, { credentials: 'same-origin' }).then((r) => r.json());
 
-const s3 = await getS3Config();
 const editor = new FroalaEditor('#editor', {
-  imageUploadToS3: s3,
-  fileUploadToS3: s3,
-  videoUploadToS3: s3,
+  imageUploadToS3: await getS3Config('image'),
+  fileUploadToS3: await getS3Config('file'),
+  videoUploadToS3: await getS3Config('video'),
   events: {
     'image.uploadedToS3'(link, key, response) {
       console.log('Stored in S3 as', key);
@@ -125,14 +125,15 @@ const editor = new FroalaEditor('#editor', {
 
 // The signed policy expires after 5 minutes. Replace it before then.
 setInterval(async () => {
-  const fresh = await getS3Config();
-  editor.opts.imageUploadToS3 = fresh;
-  editor.opts.fileUploadToS3 = fresh;
-  editor.opts.videoUploadToS3 = fresh;
+  editor.opts.imageUploadToS3 = await getS3Config('image');
+  editor.opts.fileUploadToS3 = await getS3Config('file');
+  editor.opts.videoUploadToS3 = await getS3Config('video');
 }, 4 * 60 * 1000);
 ```
 
-The server side (the SDK's `S3.getHash`, or a tested variant that adds a size limit), the S3 bucket CORS, the ACL caveat, and Azure with a server-generated SAS are in [references/s3-and-azure.md](references/s3-and-azure.md). Never pass `accessKey` in `imageUploadToAzure`: the editor then signs requests in the browser with your storage account key.
+**Lock the `Content-Type` in the policy.** The SDK signers allow any type, so a policy holder can store `text/html` in your bucket. Even `image/` admits SVG, and your server never sees the bytes of a direct upload, so serve the bucket from a separate domain or CDN with `X-Content-Type-Options: nosniff`. An Azure SAS can't restrict the type at all.
+
+The server side (the SDK's `S3.getHash`, or a tested variant that adds a `Content-Type` prefix and a size limit), the S3 bucket CORS, the ACL caveat, and Azure with a server-generated SAS are in [references/s3-and-azure.md](references/s3-and-azure.md). Never pass `accessKey` in `imageUploadToAzure`: the editor then signs requests in the browser with your storage account key.
 
 ## Deleting stored files
 
@@ -177,7 +178,7 @@ Set `imageManagerLoadURL` to your endpoint; **the default is Froala's demo serve
 - **One file per upload.** `editor.image.upload(files)` uploads only `files[0]`. When inserting several images from code, insert one at a time: wait for `image.inserted` / `image.replaced` / `image.error`, then `editor.selection.setAfter(previous)`. `image.insert()` is asynchronous and drops the caret, so a loop inserts every image after the first at the start of the document.
 - **The S3 key and Azure blob name contain the user's file name.** S3: `keyStart + timestamp + '-' + name`. Azure: just the name, so two users uploading `image.png` overwrite each other. Rename in `image.beforeUpload` ([s3-and-azure.md](references/s3-and-azure.md)).
 - **Docs and package disagree on video defaults.** The 5.6.0 package uses `videoMaxSize: 52428800` (50 MB; the docs say 30 MB) and `videoAllowedTypes: ['mp4', 'webm', 'ogg', 'mp3', 'mpeg', 'url']` (the docs list three). Trust the package, and set both explicitly.
-- **Saved HTML may contain the "Powered by" paragraph.** With no licence key or the trial key, 5.6.0 `html.get()` appends `<p data-f-id="pbf">Powered by Froala Editor</p>`. Set the `key` option before saving content, and don't let the save-time cleanup treat that paragraph as content.
+- **Saved HTML may contain the "Powered by" paragraph.** With no licence key or the trial key, 5.6.0 `html.get()` appends `<p data-f-id="pbf" …>Powered by <a …>Froala Editor</a></p>`. Set the `key` option before saving content, and don't let the save-time cleanup treat that paragraph as content.
 
 ## Verify it works
 

@@ -63,7 +63,7 @@ Find the closest symptom, check the likely cause, then open the reference file f
 | Broke after a CDN update | CSS and JS versions differ, or two `froala-editor` copies on npm | Pin one exact version; `npm ls froala-editor` | [loading-and-init.md](references/loading-and-init.md) |
 | `editor.text is undefined` | There is no `text` API | `editor.html.get()` or `editor.selection.text()` | [loading-and-init.md](references/loading-and-init.md) |
 | Licence notice: "…is missing", "…is invalid", "…expired", trial notice | Wrong option name (`key`, not `licenseKey`), key missing from the build, or wrong domain | Set `key`; check the deployed build and the licence domains | [licence-uploads-and-features.md](references/licence-uploads-and-features.md) |
-| Saved HTML ends with `<p data-f-id="pbf">Powered by Froala Editor</p>` | 5.6.0 with no key or the trial key | Set a licence key; re-save affected documents | [licence-uploads-and-features.md](references/licence-uploads-and-features.md) |
+| Saved HTML ends with `<p data-f-id="pbf" …>Powered by <a …>Froala Editor</a></p>` | 5.6.0 with no key or the trial key | Set a licence key; re-save affected documents | [licence-uploads-and-features.md](references/licence-uploads-and-features.md) |
 | Upload fails: "No link in upload response.", "Parsing response failed." | The server does not return `{ "link": "…" }` | Fix the response; log `image.error` (`error.code`) | [licence-uploads-and-features.md](references/licence-uploads-and-features.md) |
 | Images broken after reload; saved HTML has `src="blob:…"` | No upload target configured | Set `imageUploadURL` (or S3, Azure, Filestack) | [licence-uploads-and-features.md](references/licence-uploads-and-features.md) |
 | Editor stays editable; Angular `FormControl.disable()` has no effect | No wrapper read-only prop; the Angular `setDisabledState` is empty | `editor.edit.off()` / `editor.edit.on()` | [licence-uploads-and-features.md](references/licence-uploads-and-features.md) |
@@ -115,7 +115,7 @@ This step is mandatory. Do not report the problem as fixed until each tier you c
 1. **Build.** The project builds, and type-checks if it uses TypeScript, with no errors. `npm ls froala-editor` lists a single version.
 2. **Browser, if you have a browser automation tool** (Playwright, a Chrome MCP server or similar). Load the page from a fresh reload and check:
    - the original symptom is gone (the button renders as `[data-cmd="<name>"]` in `.fr-toolbar`, the upload returns a `link`, the error no longer appears…);
-   - inside `events.initialized`, `this.html.get()` returns the expected HTML. With no key or the trial key, 5.6.0 may append `<p data-f-id="pbf">Powered by Froala Editor</p>`; that is the licence, not a bug;
+   - inside `events.initialized`, `this.html.get()` returns the expected HTML. With no key or the trial key, 5.6.0 may append `<p data-f-id="pbf" …>Powered by <a …>Froala Editor</a></p>`; that is the licence, not a bug;
    - the console has no errors from page load onwards. Without a licence key, the 5.6.0 licence message in the console is expected.
 3. **Otherwise, ask the user** to reload the page and confirm the specific thing that was broken now works, and that the browser console shows no new errors.
 

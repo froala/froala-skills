@@ -49,16 +49,16 @@ Official SDKs (5.6.0): Node `S3.getHash(config)` (5-minute policy), Python `S3.g
 }
 ```
 
-Its policy allows any size and any `Content-Type` under `keyStart`. The policy expires 5 minutes after `S3.getHash` runs, so **compute it per request** (as the docs' complete example does inside the route), never once at server start.
+Its policy allows any size and any `Content-Type` under `keyStart`, so anyone holding it can store `text/html` in your bucket. The policy expires 5 minutes after `S3.getHash` runs, so **compute it per request** (as the docs' complete example does inside the route), never once at server start.
 
-A Node signer that uses the same algorithm (with the same inputs it produced a byte-identical policy and signature to the SDK's `S3.getHash`), and adds a size limit, an optional `acl` and the regional `uploadURL`:
+A Node signer that uses the same algorithm (with the same inputs and `contentTypePrefix: ''` it produced a byte-identical policy and signature to the SDK's `S3.getHash`), and adds a `Content-Type` prefix, a size limit, an optional `acl` and the regional `uploadURL`:
 
 ```js
-// s3sign.js: same algorithm as wysiwyg-editor-node-sdk 5.6.0 lib/s3.js getHash, plus a size limit,
-// an optional acl and the regional virtual-hosted upload URL.
+// s3sign.js: same algorithm as wysiwyg-editor-node-sdk 5.6.0 lib/s3.js getHash, plus a Content-Type
+// prefix, a size limit, an optional acl and the regional virtual-hosted upload URL.
 const crypto = require('node:crypto');
 
-function s3UploadConfig({ bucket, region, keyStart, acl, accessKey, secretKey, maxBytes }) {
+function s3UploadConfig({ bucket, region, keyStart, acl, accessKey, secretKey, maxBytes, contentTypePrefix = 'image/' }) {
   const now = new Date();
   const date = now.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
   const credential = `${accessKey}/${date}/${region}/s3/aws4_request`;
@@ -72,7 +72,7 @@ function s3UploadConfig({ bucket, region, keyStart, acl, accessKey, secretKey, m
     { 'x-amz-credential': credential },
     { 'x-amz-date': amzDate },
     ['starts-with', '$key', keyStart],
-    ['starts-with', '$Content-Type', ''],
+    ['starts-with', '$Content-Type', contentTypePrefix], // '' would let anyone holding the policy store text/html
     ...(maxBytes ? [['content-length-range', 1, maxBytes]] : []),
   ];
   const policy = Buffer.from(JSON.stringify({
@@ -105,7 +105,13 @@ The route (Express; requireUser is your auth middleware, which sets req.user):
 <!-- validate:skip -->
 <!-- Server-side signer parameters (maxBytes, secretKey) are not froala-editor options; this route ran in the test harness. -->
 ```js
+// One policy per kind: the editor sends the file's own type as Content-Type, and S3 rejects a
+// policy mismatch with 403. Files are whatever your app accepts; never use '' here.
+const CONTENT_TYPE_PREFIX = { image: 'image/', video: 'video/', file: 'application/pdf' };
+
 router.get('/api/uploads/s3-config', requireUser, (req, res) => {
+  const contentTypePrefix = CONTENT_TYPE_PREFIX[req.query.kind];
+  if (!contentTypePrefix) return res.status(400).json({ error: 'kind must be image, video or file' });
   res.json(s3UploadConfig({
     bucket: process.env.S3_BUCKET,
     region: process.env.S3_REGION, // e.g. eu-west-1
@@ -113,10 +119,13 @@ router.get('/api/uploads/s3-config', requireUser, (req, res) => {
     accessKey: process.env.AWS_ACCESS_KEY_ID,
     secretKey: process.env.AWS_SECRET_ACCESS_KEY,
     maxBytes: 5 * 1024 * 1024,
+    contentTypePrefix,
   }));
 });
 ```
 <!-- validate:end -->
+
+**The prefix narrows the type but does not make the bytes safe.** `image/` still admits `image/svg+xml`, which can carry script, and the browser can send any `Content-Type` it likes. Your server never sees the bytes of a direct upload, so it can't sniff them. Serve the bucket from a separate domain (or a CDN) that sets `X-Content-Type-Options: nosniff`, never from your app's origin. If you must reject SVG, upload through your server instead.
 
 The client is the snippet in SKILL.md ("Direct to S3 or Azure"); in the browser run it posted to `https://my-bucket.s3.eu-west-1.amazonaws.com/` with key `uploads/u1/<timestamp>-Photo.png` for images and videos alike.
 
@@ -190,6 +199,6 @@ router.get('/api/uploads/azure-config', requireUser, (req, res) => {
 ```
 <!-- validate:end -->
 
-A container SAS lets its holder write any blob name in the container until it expires; keep the expiry short and refresh it like the S3 policy (replace `editor.opts.imageUploadToAzure`). Configure CORS on the storage account to allow `PUT` from your origin with the headers above.
+A container SAS lets its holder write any blob name **with any `Content-Type`** in the container until it expires (a SAS can't restrict the type; the editor sets it from `file.type`), so serve the container from a separate domain or CDN with `X-Content-Type-Options: nosniff`, as for S3; keep the expiry short and refresh it like the S3 policy (replace `editor.opts.imageUploadToAzure`). Configure CORS on the storage account to allow `PUT` from your origin with the headers above.
 
 Docs: https://froala.com/wysiwyg-editor/docs/options/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-uploads-and-storage, https://froala.com/wysiwyg-editor/docs/sdks/nodejs/image-s3-upload/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-uploads-and-storage

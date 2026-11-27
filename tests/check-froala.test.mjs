@@ -79,6 +79,12 @@ test('bad project: every mistake is reported exactly once, with a fix', () => {
     `E index.html:6 cdn-version Froala CDN link loads 5.5.0, but froala-editor ${V} is installed. Mixed versions break plugins and styles`,
     `E index.html:7 cdn-placeholder Froala CDN link still has the placeholder "VERSION" instead of a version`,
     `E index.html:8 cdn-unpinned Froala CDN link uses "5", which moves to new releases (including major ones)`,
+    // editors held in variables with any name, and an inline <FroalaEditorComponent config={{ ... }} />
+    `E src/Aliases.jsx:7 unknown-method "html.sett()" is not a method of the html module in froala-editor ${V}`,
+    `W src/Aliases.jsx:8 unknown-event Event "contentChangd" does not exist in froala-editor ${V} (fine if your own code triggers it)`,
+    `E src/Aliases.jsx:14 unknown-method "selection.sav()" is not a method of the selection module in froala-editor ${V}`,
+    `E src/Aliases.jsx:18 unknown-option Option "heigthF" does not exist in froala-editor ${V}`,
+    `E src/Aliases.jsx:18 unknown-event Event "contentChangd" does not exist in froala-editor ${V}`,
     `E src/BadEditor.jsx:2 named-import froala-editor has a default export, not a named FroalaEditor export`,
     `E src/BadEditor.jsx:5 unknown-static "FroalaEditor.RegisterComand" does not exist in froala-editor ${V}`,
     `E src/BadEditor.jsx:6 defineicon-svg DefineIcon has no "SVG" key, so the icon renders empty`,
@@ -101,7 +107,7 @@ test('bad project: every mistake is reported exactly once, with a fix', () => {
     `E src/app/editor.component.ts:9 unknown-option Option "imageMaxSizeMB" does not exist in froala-editor ${V}`,
   ]);
   assert.equal(status, 1);
-  assert.equal(result.errors, 21);
+  assert.equal(result.errors, 25);
   const fixes = Object.fromEntries(result.findings.map((f) => [`${f.file}:${f.line}:${f.rule}`, f.fix]));
   assert.equal(fixes['src/BadEditor.jsx:16:unknown-option'], 'did you mean "height"?');
   assert.equal(fixes['src/BadEditor.jsx:17:unknown-option'], 'did you mean "imageUploadURL"?');

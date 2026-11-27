@@ -656,6 +656,26 @@ export function checkProject({ projectDir, targets = [], cwd = process.cwd() }) 
     }
     if (!isFroalaFile) continue;
     const T = tokenize(text);
+    // Variables that hold an editor in this file, whatever their name: `const ed = new FroalaEditor(...)`,
+    // `ed = ref.current.getEditor()`, `const e2 = ed`. Their calls are checked like `editor.x.y()`.
+    const editorVars = new Set();
+    for (let pass = 0; pass < 2; pass++) {
+      for (let k = 0; k + 3 < T.length; k++) {
+        if (T[k].t !== 'id' || T[k + 1].v !== '=' || T[k + 2].v === '=' || (T[k - 1] && T[k - 1].v === '.')) continue;
+        const a = T[k + 2];
+        if (a.v === 'new' && T[k + 3].v === 'FroalaEditor') editorVars.add(T[k].v);
+        else if (a.t === 'id' && (editorVars.has(a.v) || a.v === 'editor') && !['.', '(', '['].includes(T[k + 3].v)) editorVars.add(T[k].v);
+        else {
+          for (let q = k + 2; q + 2 < T.length && q < k + 14; q++) {
+            if (T[q].v === ';' || T[q].v === '=' || T[q].v === '=>' || T[q].v === '{') break;
+            if (T[q].v === 'getEditor' && T[q + 1].v === '(' && T[q + 2].v === ')') {
+              if (!T[q + 3] || !['.', '['].includes(T[q + 3].v)) editorVars.add(T[k].v);
+              break;
+            }
+          }
+        }
+      }
+    }
     const tokAt = (s) => {
       let lo = 0;
       let hi = T.length - 1;
@@ -781,7 +801,7 @@ export function checkProject({ projectDir, targets = [], cwd = process.cwd() }) 
         }
       }
       // JSX / Svelte: <FroalaEditorComponent config={{ ... }} />
-      if (x.t === 'id' && x.v === 'config' && T[k + 1].v === '=' && T[k + 2].v === '{' && T[k + 3] && T[k + 3].v === '{' && /<(?:FroalaEditor|Froala)\b/.test(text)) checkOptions(k + 3, true);
+      if (x.t === 'id' && x.v === 'config' && T[k + 1].v === '=' && T[k + 2].v === '{' && T[k + 3] && T[k + 3].v === '{' && /<(?:FroalaEditor(?:Component)?|Froala)\b/.test(text)) checkOptions(k + 3, true);
       if (x.t === 'id' && STRONG_CONFIG.test(x.v)) localStrong.add(x.v);
       // FroalaEditor.<Static> and FroalaEditor.DEFAULTS.<option>
       if (x.t === 'id' && x.v === 'FroalaEditor' && T[k + 1].v === '.' && T[k + 2].t === 'id' && !(T[k - 1] && T[k - 1].v === '.')) {
@@ -895,7 +915,7 @@ export function checkProject({ projectDir, targets = [], cwd = process.cwd() }) 
     for (let k = 2; k + 4 < T.length; k++) {
       if (!(T[k].t === 'id' && T[k].v === 'events' && T[k - 1].v === '.' && T[k + 1].v === '.' && T[k + 2].v === 'on' && T[k + 3].v === '(' && T[k + 4].t === 'str')) continue;
       const recv = T[k - 2];
-      if (!(recv.t === 'id' && (EDITOR_RECEIVER.test(recv.v) || recv.v === 'this')) && !(recv.v === ')' && T[k - 4] && T[k - 4].v === 'getEditor')) continue;
+      if (!(recv.t === 'id' && (EDITOR_RECEIVER.test(recv.v) || editorVars.has(recv.v) || recv.v === 'this')) && !(recv.v === ')' && T[k - 4] && T[k - 4].v === 'getEditor')) continue;
       for (const ev of T[k + 4].v.split(/\s+/).filter(Boolean)) {
         if (/^froalaEditor\./.test(ev) || index.strings.has(ev) || customEvents.has(ev)) continue;
         const near = nearest(ev, knownEvents(index));
@@ -910,8 +930,8 @@ export function checkProject({ projectDir, targets = [], cwd = process.cwd() }) 
       if (!(r.t === 'id' || viaGetEditor)) continue;
       const recv = viaGetEditor ? 'getEditor()' : r.v;
       const isThis = recv === 'this';
-      if (!isThis && !EDITOR_RECEIVER.test(recv)) continue;
-      const strictRecv = !isThis && FROALA_RECEIVER.test(recv);
+      if (!isThis && !EDITOR_RECEIVER.test(recv) && !editorVars.has(recv)) continue;
+      const strictRecv = !isThis && (FROALA_RECEIVER.test(recv) || editorVars.has(recv));
       let j = k + 1;
       if (T[j].v === '?') j++;
       if (T[j].v !== '.' || !T[j + 1] || T[j + 1].t !== 'id') continue;

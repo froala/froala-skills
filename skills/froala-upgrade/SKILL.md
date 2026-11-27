@@ -67,7 +67,7 @@ Write the list as a short checklist for the user (one line per change that affec
 ### 3. Confirm the licence key
 
 - Froala's guides say v3 and v4 projects need a **new key for v5** (contact support@froala.com), and v2 projects needed a new key for v3.
-- From 5.6.0, with no key or the trial key, `html.get()` appends `<p data-f-id="pbf">Powered by Froala Editor</p>` to the content and `localhost` shows the licence notice too. **Set a real key before anyone saves content with the upgraded editor**, or the paragraph is stored in every document saved.
+- From 5.6.0, with no key or the trial key, `html.get()` appends `<p data-f-id="pbf" …>Powered by <a …>Froala Editor</a></p>` to the content and `localhost` shows the licence notice too. **Set a real key before anyone saves content with the upgraded editor**, or the paragraph is stored in every document saved.
 - The key goes in the `key` option (not `licenseKey`). Read it from an environment variable.
 
 ### 4. Record a baseline and check custom CSS
@@ -134,7 +134,7 @@ Deploy to a staging environment first, with the production key. Keep the previou
 |---|---|---|
 | Upgrading `froala-editor` but not the wrapper (or the reverse) | Two copies of the core; custom buttons and plugins vanish | Upgrade both in one command, `--save-exact`; check `npm ls froala-editor` |
 | Mixed versions in CDN URLs | Broken or unstyled editor | One version in every Froala URL |
-| Saving content on 5.6.0 with no key or the trial key | `<p data-f-id="pbf">Powered by Froala Editor</p>` saved in documents | Set `key` first; re-saving affected documents through `html.set()` removes it |
+| Saving content on 5.6.0 with no key or the trial key | `<p data-f-id="pbf" …>Powered by <a …>Froala Editor</a></p>` saved in documents | Set `key` first; re-saving affected documents through `html.set()` removes it |
 | Keeping the old v3/v4 key on v5 | Licence notice on the live site | Request a v5 key from Froala |
 | Leaving `'froalaEditor.'` event names after leaving Froala 2 | Handlers never run | Use plain event names in `events: {}` or `editor.events.on()` |
 | Adding jQuery "because Froala needs it" | Unneeded dependency; Froala 3+ never uses it | Remove jQuery unless the app itself uses it |

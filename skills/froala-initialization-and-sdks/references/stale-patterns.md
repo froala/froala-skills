@@ -17,7 +17,7 @@ The left column shows the wrong pattern only so you can recognise it. Never writ
 | CDN URLs with `@latest`, no version, or different versions for CSS and JS | One exact version in every URL: `froala-editor@VERSION/…`, with `VERSION` replaced by the installed version | SKILL.md "CDN"; cached files drift apart |
 | Installing the newest `froala-editor` next to a wrapper that pins another version | Install `froala-editor` at the exact version the wrapper depends on (5.6.0 for wrapper 5.6.0); `npm ls froala-editor` lists one version | package (React, Vue and Angular wrappers depend on `"froala-editor": "5.6.0"`) |
 | `licenseKey: '…'` | `key: '…'` | [Activation docs](https://froala.com/wysiwyg-editor/docs/activation/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-initialization-and-sdks); package reads `opts.key`, and `licenseKey` appears nowhere |
-| Assuming the trial key or `localhost` gives a clean editor | From 5.6.0, no key or the trial key shows a licence notice on localhost too, and `html.get()` appends `<p data-f-id="pbf">Powered by Froala Editor</p>` | SKILL.md "Licensing" (observed in a 5.6.0 app) |
+| Assuming the trial key or `localhost` gives a clean editor | From 5.6.0, no key or the trial key shows a licence notice on localhost too, and `html.get()` appends `<p data-f-id="pbf" …>Powered by <a …>Froala Editor</a></p>` | SKILL.md "Licensing" (observed in a 5.6.0 app) |
 | Expecting `pkgd` bundles to contain Track Changes | `track_changes.min.js`, `trim_video.min.js` and `js/third_party/*` load separately | package (`references/plugin-names.md`, generated) |
 <!-- validate:end -->
 

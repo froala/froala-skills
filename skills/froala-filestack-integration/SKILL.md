@@ -205,7 +205,7 @@ export default function FroalaWithFilestack({ model, onModelChange }) {
 }
 ```
 
-Add your licence key as `key` in `config` (read it from an environment variable). Without a key or with the trial key, 5.6.0 appends `<p data-f-id="pbf">Powered by Froala Editor</p>` to `html.get()`, and so to `model` and to saved content.
+Add your licence key as `key` in `config` (read it from an environment variable). Without a key or with the trial key, 5.6.0 appends `<p data-f-id="pbf" …>Powered by <a …>Froala Editor</a></p>` to `html.get()`, and so to `model` and to saved content.
 
 ### Applying Transformations Before Insert
 

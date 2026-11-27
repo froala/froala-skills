@@ -25,15 +25,15 @@ Part of the froala-error-diagnosis skill (verified against froala-editor 5.6.0).
 
 **Cause 1 — the option name is wrong.** The activation key goes in the `key` option. `licenseKey` is not a Froala option and has no effect.
 
-**Cause 2 — the key is missing in the deployed build.** Environment variables are often set locally but not in the production build. Check that the variable is defined at build time (never log the key itself).
+**Cause 2 — the key is missing in the deployed build.** Environment variables are often set locally but not in the production build. Check that the variable is defined at build time (never log the key itself). Bundlers only expose prefixed variables to browser code: `import.meta.env.VITE_*` in Vite, `process.env.NEXT_PUBLIC_*` in Next.js. An unprefixed `process.env` variable is `undefined` in the browser, which gives exactly this notice.
 
 **Cause 3 — the key does not cover this domain.** A key is issued for a domain and its subdomains. Check the domains of the licence, and remember that upgrading from an older major version to v5 needs a new key.
 
-**Cause 4 — no key or the trial key during local development on 5.6.0+.** On `localhost`, 5.5.0 shows only a small "Powered by Froala" badge without a key. From 5.6.0, localhost shows the same notice as a live site and the console logs it too. With no key or the trial key, 5.6.0 also appends `<p data-f-id="pbf">Powered by Froala Editor</p>` to the HTML that `html.get()` returns (and to the React `model`). That paragraph is saved with the content and shown wherever the saved HTML is displayed. Set a licence key. `html.set()` removes the paragraph when content is loaded back into the editor, so opening and re-saving each affected document cleans it.
+**Cause 4 — no key or the trial key during local development on 5.6.0+.** On `localhost`, 5.5.0 shows only a small "Powered by Froala" badge without a key. From 5.6.0, localhost shows the same notice as a live site and the console logs it too. With no key or the trial key, 5.6.0 also appends `<p data-f-id="pbf" …>Powered by <a …>Froala Editor</a></p>` to the HTML that `html.get()` returns (and to the React `model`). That paragraph is saved with the content and shown wherever the saved HTML is displayed. Set a licence key. `html.set()` removes the paragraph when content is loaded back into the editor, so opening and re-saving each affected document cleans it.
 
 ```js
 new FroalaEditor('#editor', {
-  key: process.env.FROALA_ACTIVATION_KEY, // never hardcode in public repos
+  key: import.meta.env.VITE_FROALA_KEY, // Vite; Next.js: process.env.NEXT_PUBLIC_FROALA_KEY. Never hardcode in public repos
 });
 ```
 

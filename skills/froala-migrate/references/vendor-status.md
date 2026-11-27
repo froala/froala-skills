@@ -25,5 +25,5 @@ How to use this in a plan: under **Licences and accounts** in `FROALA_MIGRATION_
 installed version, the fact that applies to it (with link) and "the user confirms their own agreement".
 Froala's own licence: the project needs a Froala licence key in the `key` option for production (see
 [Activation](https://froala.com/wysiwyg-editor/docs/activation/?utm_source=froala-skills&utm_medium=agent-skill&utm_content=froala-migrate)). From 5.6.0, with no key or the trial key,
-`html.get()` appends a `<p data-f-id="pbf">Powered by Froala Editor</p>` paragraph, so set the key before
+`html.get()` appends a `<p data-f-id="pbf" …>Powered by <a …>Froala Editor</a></p>` paragraph, so set the key before
 saving content.
